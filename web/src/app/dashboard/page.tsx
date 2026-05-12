@@ -2,20 +2,61 @@
 
 import { useEffect, useState } from "react";
 import { Wallet, TrendingUp, Award, Leaf } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [aicValue, setAicValue] = useState(0);
   const [progress, setProgress] = useState(16); // Starting at 16% value gap
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate fetching the AIC calculation from Supabase
-    const timer = setTimeout(() => {
-      setAicValue(4520.5); // Mock absolute AIC value
-      // Animate progress from 16% to the new total value percentage (e.g. 85%)
-      setProgress(85);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
+    async function loadData() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+
+      // Fetch farmer ID
+      const { data: farmer } = await supabase
+        .from("farmers")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
+
+      if (farmer) {
+        // Fetch impact credits
+        const { data: credits } = await supabase
+          .from("impact_credits")
+          .select("total_aic, gap_factor")
+          .eq("farmer_id", farmer.id)
+          .order("calculated_at", { ascending: false })
+          .limit(1)
+          .single();
+
+        if (credits) {
+          setAicValue(credits.total_aic);
+          // Calculate new progress (Base 16% + (gap_factor * something)?
+          // Let's assume Gap Factor represents the 84% gap multiplier, so we just show 16 + (gap_factor * 100) or similar.
+          // For the visual hook, let's say progress is 16 + (credits.gap_factor * 100) capped at 100.
+          // Actually, gap_factor = 0.84. So 16 + (0.84 * 100) = 100.
+          setProgress(Math.min(100, 16 + (credits.gap_factor * 100)));
+        }
+      }
+      setLoading(false);
+    }
+    loadData();
+  }, [router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-primary font-bold animate-pulse">Loading Trust Dashboard...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground p-6">
@@ -25,7 +66,7 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-bold text-primary">Trust Dashboard</h1>
         </div>
         <div className="text-sm font-semibold bg-accent text-primary px-4 py-2 rounded-full">
-          Farmer ID: 9842-XXXX
+          Farmer ID: Authenticated
         </div>
       </header>
 

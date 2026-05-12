@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { ArrowRight, ArrowLeft, Map as MapIcon, Sprout, Users } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 const MapDraw = dynamic(() => import("@/components/MapDraw"), { ssr: false });
 
@@ -20,6 +21,18 @@ export default function IntakePage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [user, setUser] = useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setUser(user);
+      } else {
+        router.push("/login");
+      }
+    });
+  }, [router]);
+
   const nextStep = () => setStep((s) => s + 1);
   const prevStep = () => setStep((s) => s - 1);
 
@@ -32,13 +45,43 @@ export default function IntakePage() {
   };
 
   const handleSubmit = async () => {
+    if (!user) return;
     setIsSubmitting(true);
-    // In a real app, this would send data to Supabase Edge Function
-    // const response = await fetch('YOUR_EDGE_FUNCTION_URL', { ... })
-    setTimeout(() => {
-      setIsSubmitting(false);
+    
+    try {
+      // 1. Call RPC to insert farmer and farm (PostGIS)
+      const { data: farmerId, error: rpcError } = await supabase.rpc('handle_farmer_intake', {
+        p_total_family: parseInt(formData.totalFamily) || 0,
+        p_female_members: parseInt(formData.femaleMembers) || 0,
+        p_unmarried_girls: parseInt(formData.unmarriedGirls) || 0,
+        p_yearly_yield: parseFloat(formData.yearlyYield) || 0,
+        p_area_hectares: formData.areaHectares,
+        p_geojson: (formData.geojson as any).geometry, // eslint-disable-line @typescript-eslint/no-explicit-any
+      });
+
+      if (rpcError) throw rpcError;
+
+      // 2. Invoke Edge Function to calculate AIC
+      const { error: edgeError } = await supabase.functions.invoke('calculate-satellite-impact', {
+        body: {
+          farmer_id: farmerId,
+          area_hectares: formData.areaHectares,
+          total_family: parseInt(formData.totalFamily) || 0,
+          female_members: parseInt(formData.femaleMembers) || 0,
+          unmarried_girls: parseInt(formData.unmarriedGirls) || 0,
+          yearly_yield: parseFloat(formData.yearlyYield) || 0,
+        }
+      });
+
+      if (edgeError) throw edgeError;
+
       router.push("/dashboard");
-    }, 1500);
+    } catch (err) {
+      console.error("Submission failed:", err);
+      alert("Submission failed. Please check the console.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
