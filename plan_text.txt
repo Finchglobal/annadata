@@ -1,0 +1,97 @@
+Project Annadata: Bridging the 16% Gap
+Implementation Plan for Annadata Impact Credits (AIC)
+1. Executive Summary
+The Indian agricultural sector remains the backbone of the nation, yet the primary
+provider—the Annadata—receives less than 16% of the final consumer value of their
+produce. This project introduces Annadata Impact Credits (AIC), a revolutionary
+financial instrument designed to recognize and reward the unrecognized hardship,
+social contribution, and environmental stewardship of farmers. 
+By leveraging the SIR (Social Impact Rewards) framework and a high-performance
+"Antigravity" tech stack, this plan outlines the transition of 150,000 farmers into a
+system where impact is verified via satellite and rewarded with direct, absolute
+financial values. 
+2. Data Acquisition Strategy
+The system utilizes a Hybrid Verification Model to minimize farmer friction while
+maximizing auditability.
+Category A: Social & Demographic (Farmer Input)
+Collected via a lightweight mobile interface to assess the social equity impact:
+Family Composition: Total members and dependency ratios.
+Gender Focus: Number of female members and unmarried girl children (key
+indicators for ESG-linked educational and health rewards).
+Category B: Financial Baseline (Farmer Input)
+Yearly Yield (Absolute INR): Used to calculate the current "Value Gap" between
+farm-gate prices and market value.
+• 
+• 
+• 
+Page 1
+Category C: Sustainability & Environmental (Hybrid)
+Parameter
+Farmer Input
+Satellite Data (Verification)
+Fertilizer Usage
+Self-declaration of
+Organic vs. Chemical
+usage.
+Spectral signature analysis for soil
+health trends.
+Water
+Stewardship
+Declared irrigation
+frequency/source.
+Thermal and moisture index
+(NDWI) to monitor water-table
+depletion.
+Regenerative
+Growth
+Crop type and cycle
+dates.
+NDVI (Greenness) and Biomass
+accumulation tracking.
+3. The AIC Calculation Formula
+The reward value is not a mere percentage; it is an absolute reward based on a
+composite impact score.
+AIC = (Area × [Wsocial + Wregen]) + (Yield × Gap_Factor)
+Wsocial: Weighted multiplier for female dependency and social hardship.
+Wregen: Environmental score derived from Google Earth Engine satellite data.
+Gap_Factor: Coefficient designed to recover the unrecognized 84% value lost in the supply chain. 
+4. Local Governance & Validation
+The Ward-Level Protocol: To ensure "Bulletproof" data, the Panchayati Raj structure is
+integrated. Digital verification is triggered at the Ward Level, where the elected Ward Member
+provides social verification of the farmer’s identity and hardship, acting as a human layer of trust
+over the satellite data. 
+Page 2
+5. Technical Architecture (Antigravity Stack)
+Frontend: Next.js (Vercel) – A high-speed, mobile-optimized dashboard for
+farmers and validators.
+Database & Auth: Supabase (PostgreSQL) – Utilizing PostGIS to store farm
+polygons and Row Level Security for data protection.
+Verification Engine: Supabase Edge Functions integrated with Google Earth
+Engine API for automated satellite monitoring.
+Payouts: Automated absolute reward distribution via UPI-linked SIR gateways.
+6. Roadmap to MVP
+Phase
+Duration
+Objective
+1: Genesis
+Weeks 1-4
+Supabase schema deployment and PostGIS
+integration for the first 1,000 pilot farmers.
+2: Satellite
+Sync
+Weeks 5-8
+Integration of Earth Engine to pull NDVI/NDWI scores
+for mapped farm polygons.
+3: Payout
+Pilot
+Weeks
+9-12
+Launch of the "Hardship Dashboard" showing
+absolute reward values and the 16% gap progress.
+Authorized by: SIR (Social Impact Rewards) & sir.farm Initiative
+Empowering 150,000 Annadatas through Traceable Impact.
+• 
+• 
+• 
+• 
+Page 3
