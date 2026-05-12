@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Wallet, TrendingUp, Award, Leaf } from "lucide-react";
+import { Wallet, Award, Leaf } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
+import ValueGapVisual from "@/components/ValueGapVisual";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -86,51 +87,7 @@ export default function DashboardPage() {
           </p>
         </section>
 
-        {/* The 16% Gap Visualization */}
-        <section className="bg-white p-8 rounded-3xl shadow-lg border border-gray-100">
-          <div className="flex items-center gap-3 mb-6">
-            <TrendingUp className="text-primary" size={28} />
-            <h2 className="text-2xl font-bold text-primary">Bridging the Value Gap</h2>
-          </div>
-          
-          <p className="text-gray-600 mb-8 max-w-2xl">
-            Historically, Annadatas receive only <strong className="text-red-500">16%</strong> of the final consumer value. Your Impact Credits are dynamically bridging this gap towards 100% true value realization.
-          </p>
-
-          <div className="relative pt-8 pb-4">
-            <div className="flex mb-2 items-center justify-between">
-              <div>
-                <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-red-600 bg-red-100">
-                  Current Market Share (16%)
-                </span>
-              </div>
-              <div className="text-right">
-                <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-primary bg-accent">
-                  True Value (100%)
-                </span>
-              </div>
-            </div>
-            
-            <div className="overflow-hidden h-6 mb-4 text-xs flex rounded-full bg-red-100 relative">
-              {/* Base 16% */}
-              <div style={{ width: "16%" }} className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-red-500 z-10"></div>
-              
-              {/* Animated Bridged Gap */}
-              <div 
-                style={{ width: `${progress - 16}%`, transition: "width 2s cubic-bezier(0.4, 0, 0.2, 1)" }} 
-                className="shadow-none flex flex-col text-center whitespace-nowrap text-primary font-bold justify-center bg-accent border-l-2 border-white z-0"
-              >
-                {progress > 16 && `${(progress - 16).toFixed(0)}% Bridged via AIC`}
-              </div>
-            </div>
-            
-            <div className="flex justify-center mt-4">
-               <div className="text-xl font-bold text-primary">
-                 Total Realized Value: {progress}%
-               </div>
-            </div>
-          </div>
-        </section>
+        <ValueGapVisual finalPercentage={progress} />
 
         <section className="grid md:grid-cols-2 gap-6">
           <div className="bg-white p-6 rounded-2xl shadow border border-gray-100 flex items-start gap-4">
