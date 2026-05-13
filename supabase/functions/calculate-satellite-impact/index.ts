@@ -256,8 +256,8 @@ serve(async (req) => {
 
     // ── 1. Fetch the farm polygon for this farmer ──────────────────────────────
     const { data: farm, error: farmError } = await supabaseClient
-      .from('farms')
-      .select('geom')
+      .from('farm_geometries')
+      .select('geojson')
       .eq('farmer_id', farmer_id)
       .order('created_at', { ascending: false })
       .limit(1)
@@ -271,7 +271,7 @@ serve(async (req) => {
     let w_regen = 0.65 // safe fallback
     try {
       const accessToken = await getGoogleAccessToken()
-      const ndvi = await computeNDVI(farm.geom, accessToken)
+      const ndvi = await computeNDVI(farm.geojson, accessToken)
       // Scale NDVI (0-1) to a meaningful W_regen multiplier (0.3 – 1.5)
       // NDVI 0.0 = bare soil → W_regen = 0.3
       // NDVI 0.5 = moderate → W_regen = 0.9
