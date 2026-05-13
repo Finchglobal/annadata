@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { ArrowRight, ArrowLeft, Map as MapIcon, Sprout, Users } from "lucide-react";
+import { ArrowRight, ArrowLeft, Map as MapIcon, Sprout, Users, MapPin } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 const MapDraw = dynamic(() => import("@/components/MapDraw"), { ssr: false });
@@ -12,6 +12,9 @@ export default function IntakePage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
+    fullName: "",
+    village: "",
+    district: "",
     totalFamily: "",
     femaleMembers: "",
     unmarriedGirls: "",
@@ -20,6 +23,7 @@ export default function IntakePage() {
     geojson: null,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [user, setUser] = useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
 
@@ -33,8 +37,14 @@ export default function IntakePage() {
     });
   }, [router]);
 
-  const nextStep = () => setStep((s) => s + 1);
-  const prevStep = () => setStep((s) => s - 1);
+  const nextStep = () => {
+    setErrorMsg(null);
+    setStep((s) => s + 1);
+  };
+  const prevStep = () => {
+    setErrorMsg(null);
+    setStep((s) => s - 1);
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -47,10 +57,14 @@ export default function IntakePage() {
   const handleSubmit = async () => {
     if (!user) return;
     setIsSubmitting(true);
+    setErrorMsg(null);
     
     try {
       // 1. Call RPC to insert farmer and farm (PostGIS)
       const { data: farmerId, error: rpcError } = await supabase.rpc('handle_farmer_intake', {
+        p_full_name: formData.fullName,
+        p_village: formData.village,
+        p_district: formData.district,
         p_total_family: parseInt(formData.totalFamily) || 0,
         p_female_members: parseInt(formData.femaleMembers) || 0,
         p_unmarried_girls: parseInt(formData.unmarriedGirls) || 0,
@@ -59,7 +73,7 @@ export default function IntakePage() {
         p_geojson: (formData.geojson as any).geometry, // eslint-disable-line @typescript-eslint/no-explicit-any
       });
 
-      if (rpcError) throw rpcError;
+      if (rpcError) throw new Error(`Database error: ${rpcError.message}`);
 
       // 2. Invoke Edge Function to calculate AIC
       const { error: edgeError } = await supabase.functions.invoke('calculate-satellite-impact', {
@@ -73,12 +87,16 @@ export default function IntakePage() {
         }
       });
 
-      if (edgeError) throw edgeError;
+      if (edgeError) {
+        console.warn("Edge function failed, but database was updated:", edgeError);
+        // We don't throw here so the user can still see their profile, 
+        // the calculation might happen later or use fallbacks.
+      }
 
       router.push("/dashboard");
-    } catch (err) {
+    } catch (err: any) {
       console.error("Submission failed:", err);
-      alert("Submission failed. Please check the console.");
+      setErrorMsg(err.message || "An unexpected error occurred. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -89,47 +107,97 @@ export default function IntakePage() {
       <div className="w-full max-w-xl bg-white shadow-xl rounded-2xl p-8 border border-primary/10">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl font-bold text-primary flex items-center gap-2">
-            {step === 1 && <><Users /> Step 1: Social</>}
+            {step === 1 && <><Users /> Step 1: Identity</>}
             {step === 2 && <><Sprout /> Step 2: Yield</>}
             {step === 3 && <><MapIcon /> Step 3: Map</>}
           </h2>
           <div className="text-sm font-semibold text-primary/60">Step {step} of 3</div>
         </div>
 
+        {errorMsg && (
+          <div className="bg-red-50 text-red-600 p-4 rounded-xl mb-6 text-sm border border-red-100">
+            <strong>Submission Error:</strong> {errorMsg}
+          </div>
+        )}
+
         {step === 1 && (
           <div className="space-y-6">
-            <div>
-              <label className="block font-semibold mb-2">Total Family Members</label>
-              <input
-                type="number"
-                name="totalFamily"
-                value={formData.totalFamily}
-                onChange={handleChange}
-                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
-                placeholder="e.g. 5"
-              />
+            <div className="grid grid-cols-1 gap-6">
+              <div>
+                <label className="block font-semibold mb-2">Full Name</label>
+                <input
+                  type="text"
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
+                  placeholder="e.g. Ramesh Kumar"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-semibold mb-2">Village</label>
+                  <input
+                    type="text"
+                    name="village"
+                    value={formData.village}
+                    onChange={handleChange}
+                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
+                    placeholder="e.g. Atarra"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold mb-2 flex items-center gap-1">
+                    Ward/Dist <MapPin size={14} className="text-gray-400" />
+                  </label>
+                  <input
+                    type="text"
+                    name="district"
+                    value={formData.district}
+                    onChange={handleChange}
+                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
+                    placeholder="e.g. 12"
+                  />
+                </div>
+              </div>
             </div>
-            <div>
-              <label className="block font-semibold mb-2">Female Members</label>
-              <input
-                type="number"
-                name="femaleMembers"
-                value={formData.femaleMembers}
-                onChange={handleChange}
-                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
-                placeholder="e.g. 2"
-              />
-            </div>
-            <div>
-              <label className="block font-semibold mb-2">Unmarried Girls</label>
-              <input
-                type="number"
-                name="unmarriedGirls"
-                value={formData.unmarriedGirls}
-                onChange={handleChange}
-                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
-                placeholder="e.g. 1"
-              />
+
+            <hr className="border-gray-100" />
+
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-bold uppercase text-gray-400 mb-1">Total Family</label>
+                <input
+                  type="number"
+                  name="totalFamily"
+                  value={formData.totalFamily}
+                  onChange={handleChange}
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
+                  placeholder="5"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold uppercase text-gray-400 mb-1">Females</label>
+                <input
+                  type="number"
+                  name="femaleMembers"
+                  value={formData.femaleMembers}
+                  onChange={handleChange}
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
+                  placeholder="2"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold uppercase text-gray-400 mb-1">Girls (Unm.)</label>
+                <input
+                  type="number"
+                  name="unmarriedGirls"
+                  value={formData.unmarriedGirls}
+                  onChange={handleChange}
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
+                  placeholder="1"
+                />
+              </div>
             </div>
           </div>
         )}
@@ -139,14 +207,17 @@ export default function IntakePage() {
             <div>
               <label className="block font-semibold mb-2">Yearly Yield (Absolute INR)</label>
               <p className="text-sm text-gray-500 mb-2">The total value you received for your crops this year.</p>
-              <input
-                type="number"
-                name="yearlyYield"
-                value={formData.yearlyYield}
-                onChange={handleChange}
-                className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
-                placeholder="₹ e.g. 150000"
-              />
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">₹</span>
+                <input
+                  type="number"
+                  name="yearlyYield"
+                  value={formData.yearlyYield}
+                  onChange={handleChange}
+                  className="w-full p-3 pl-8 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
+                  placeholder="150000"
+                />
+              </div>
             </div>
           </div>
         )}
@@ -156,9 +227,15 @@ export default function IntakePage() {
             <p className="font-semibold mb-2">Draw your farm polygon on the map</p>
             <MapDraw onPolygonDrawn={handlePolygonDrawn} />
             {formData.areaHectares > 0 && (
-              <p className="text-primary font-bold bg-accent p-3 rounded-lg text-center">
-                Calculated Area: {formData.areaHectares.toFixed(2)} Hectares
-              </p>
+              <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-xl flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-bold text-emerald-800 uppercase tracking-wider">Calculated Area</div>
+                  <div className="text-2xl font-black text-emerald-600">{formData.areaHectares.toFixed(2)} <span className="text-sm font-medium">Hectares</span></div>
+                </div>
+                <div className="p-3 bg-white rounded-full shadow-sm text-emerald-600">
+                  <Sprout />
+                </div>
+              </div>
             )}
           </div>
         )}
@@ -187,7 +264,7 @@ export default function IntakePage() {
               disabled={isSubmitting || formData.areaHectares === 0}
               className="flex items-center gap-2 bg-primary text-accent px-6 py-3 rounded-full font-bold hover:bg-primary/90 transition-colors disabled:opacity-50"
             >
-              {isSubmitting ? "Submitting..." : "Submit to Ledger"}
+              {isSubmitting ? "Submitting to Ledger..." : "Submit to Ledger"}
             </button>
           )}
         </div>
