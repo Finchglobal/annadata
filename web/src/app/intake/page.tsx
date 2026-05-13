@@ -94,9 +94,10 @@ export default function IntakePage() {
       }
 
       router.push("/dashboard");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Submission failed:", err);
-      setErrorMsg(err.message || "An unexpected error occurred. Please try again.");
+      const message = err instanceof Error ? err.message : "An unexpected error occurred. Please try again.";
+      setErrorMsg(message);
     } finally {
       setIsSubmitting(false);
     }
