@@ -1,115 +1,276 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Wallet, Award, Leaf } from "lucide-react";
+import { Wallet, Award, Leaf, Satellite, ShieldCheck, ShieldAlert, ArrowRight, LogOut } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import ValueGapVisual from "@/components/ValueGapVisual";
+import AICBreakdown from "@/components/AICBreakdown";
+import Link from "next/link";
+
+interface FarmerData {
+  id: string;
+  full_name: string | null;
+  village: string | null;
+  total_family: number;
+  female_members: number;
+  unmarried_girls: number;
+  yearly_yield: number;
+  is_verified: boolean;
+}
+
+interface CreditData {
+  total_aic: number;
+  w_social: number;
+  w_regen: number;
+  gap_factor: number;
+  calculated_at: string;
+}
+
+interface FarmData {
+  area_hectares: number;
+}
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [aicValue, setAicValue] = useState(0);
-  const [progress, setProgress] = useState(16); // Starting at 16% value gap
+  const [farmer, setFarmer] = useState<FarmerData | null>(null);
+  const [credits, setCredits] = useState<CreditData | null>(null);
+  const [farm, setFarm] = useState<FarmData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [progress, setProgress] = useState(16);
 
   useEffect(() => {
     async function loadData() {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push("/login");
-        return;
-      }
+      if (!user) { router.push("/login"); return; }
 
-      // Fetch farmer ID
-      const { data: farmer } = await supabase
+      const { data: farmerData } = await supabase
         .from("farmers")
-        .select("id")
+        .select("id, full_name, village, total_family, female_members, unmarried_girls, yearly_yield, is_verified")
         .eq("user_id", user.id)
         .single();
 
-      if (farmer) {
-        // Fetch impact credits
-        const { data: credits } = await supabase
-          .from("impact_credits")
-          .select("total_aic, gap_factor")
-          .eq("farmer_id", farmer.id)
-          .order("calculated_at", { ascending: false })
-          .limit(1)
-          .single();
+      if (farmerData) {
+        setFarmer(farmerData);
 
-        if (credits) {
-          setAicValue(credits.total_aic);
-          // Calculate new progress (Base 16% + (gap_factor * something)?
-          // Let's assume Gap Factor represents the 84% gap multiplier, so we just show 16 + (gap_factor * 100) or similar.
-          // For the visual hook, let's say progress is 16 + (credits.gap_factor * 100) capped at 100.
-          // Actually, gap_factor = 0.84. So 16 + (0.84 * 100) = 100.
-          setProgress(Math.min(100, 16 + (credits.gap_factor * 100)));
+        const [{ data: creditData }, { data: farmData }] = await Promise.all([
+          supabase.from("impact_credits")
+            .select("total_aic, w_social, w_regen, gap_factor, calculated_at")
+            .eq("farmer_id", farmerData.id)
+            .order("calculated_at", { ascending: false })
+            .limit(1)
+            .single(),
+          supabase.from("farms")
+            .select("area_hectares")
+            .eq("farmer_id", farmerData.id)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .single(),
+        ]);
+
+        if (creditData) {
+          setCredits(creditData);
+          setProgress(Math.min(100, 16 + (creditData.gap_factor * 100)));
         }
+        if (farmData) setFarm(farmData);
       }
       setLoading(false);
     }
     loadData();
   }, [router]);
 
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    router.push("/");
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-primary font-bold animate-pulse">Loading Trust Dashboard...</p>
+        <div className="text-center">
+          <div className="inline-block p-4 bg-primary rounded-2xl mb-4 animate-pulse">
+            <Leaf className="text-accent" size={32} />
+          </div>
+          <p className="text-primary font-bold">Loading your Trust Dashboard...</p>
+        </div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-background text-foreground p-6">
-      <header className="max-w-4xl mx-auto flex justify-between items-center py-6 mb-8 border-b border-primary/20">
-        <div className="flex items-center gap-2">
-          <Leaf className="text-primary" />
-          <h1 className="text-2xl font-bold text-primary">Trust Dashboard</h1>
+  if (!farmer) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <div className="text-center max-w-sm">
+          <div className="p-4 bg-accent rounded-2xl inline-block mb-4">
+            <Leaf className="text-primary" size={32} />
+          </div>
+          <h2 className="text-xl font-bold text-primary mb-2">No Profile Found</h2>
+          <p className="text-gray-600 mb-6">Complete the intake flow first to generate your Impact Credits.</p>
+          <Link href="/intake" className="inline-flex items-center gap-2 bg-primary text-accent px-6 py-3 rounded-full font-bold hover:bg-primary/90 transition-colors">
+            Start Intake <ArrowRight size={18} />
+          </Link>
         </div>
-        <div className="text-sm font-semibold bg-accent text-primary px-4 py-2 rounded-full">
-          Farmer ID: Authenticated
+      </div>
+    );
+  }
+
+  const ndviScore = credits ? ((credits.w_regen - 0.3) / 1.2) : null;
+
+  return (
+    <div className="min-h-screen bg-gray-50 text-foreground">
+      {/* Header */}
+      <header className="bg-primary text-accent sticky top-0 z-10 shadow-lg">
+        <div className="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="p-1.5 bg-accent/20 rounded-lg">
+              <Leaf size={18} className="text-accent" />
+            </div>
+            <div>
+              <div className="font-bold text-sm">Trust Dashboard</div>
+              {farmer.full_name && (
+                <div className="text-accent/70 text-xs">{farmer.full_name} · {farmer.village || "Village"}</div>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            {farmer.is_verified ? (
+              <span className="flex items-center gap-1 bg-green-500/20 text-green-300 border border-green-400/30 text-xs font-semibold px-3 py-1 rounded-full">
+                <ShieldCheck size={12} /> Verified
+              </span>
+            ) : (
+              <span className="flex items-center gap-1 bg-yellow-500/20 text-yellow-300 border border-yellow-400/30 text-xs font-semibold px-3 py-1 rounded-full">
+                <ShieldAlert size={12} /> Pending Ward Verification
+              </span>
+            )}
+            <button onClick={handleLogout} className="text-accent/60 hover:text-accent">
+              <LogOut size={18} />
+            </button>
+          </div>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto space-y-8">
-        
-        {/* Annadata Wallet Section */}
+      <main className="max-w-4xl mx-auto p-6 space-y-6">
+
+        {/* Annadata Wallet */}
         <section className="bg-primary text-accent p-8 rounded-3xl shadow-2xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-8 opacity-10">
-            <Wallet size={120} />
+          <div className="absolute -top-10 -right-10 w-48 h-48 bg-white/5 rounded-full" />
+          <div className="absolute -bottom-16 -left-10 w-64 h-64 bg-white/5 rounded-full" />
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 mb-4 opacity-80">
+              <Wallet size={18} />
+              <span className="text-sm font-semibold uppercase tracking-wider">Annadata Wallet</span>
+            </div>
+            <div className="text-5xl font-extrabold mb-2">
+              {credits ? credits.total_aic.toLocaleString("en-IN", { maximumFractionDigits: 0 }) : "0"}{" "}
+              <span className="text-2xl font-medium opacity-60">AIC</span>
+            </div>
+            <p className="text-accent/70 text-sm max-w-md">
+              Your Annadata Impact Credits represent your recognized contribution — verified by satellite, validated by your Ward Member.
+            </p>
+
+            {/* Quick stats strip */}
+            <div className="grid grid-cols-3 gap-4 mt-8 pt-6 border-t border-white/10">
+              {[
+                { label: "Farm Area", value: farm ? `${farm.area_hectares.toFixed(2)} ha` : "—" },
+                { label: "Yearly Yield", value: farmer.yearly_yield ? `₹${farmer.yearly_yield.toLocaleString()}` : "—" },
+                { label: "NDVI Score", value: ndviScore !== null ? ndviScore.toFixed(2) : "—" },
+              ].map((s) => (
+                <div key={s.label}>
+                  <div className="text-xl font-bold">{s.value}</div>
+                  <div className="text-accent/60 text-xs mt-0.5">{s.label}</div>
+                </div>
+              ))}
+            </div>
           </div>
-          <h2 className="text-xl font-medium mb-2 opacity-90">Annadata Wallet Balance</h2>
-          <div className="text-5xl font-extrabold mb-4">
-            {aicValue === 0 ? "Calculating..." : `${aicValue.toLocaleString()} AIC`}
-          </div>
-          <p className="max-w-md opacity-80 text-sm">
-            This absolute value represents your recognized hardship, social impact, and regenerative farming practices.
-          </p>
         </section>
 
+        {/* Value Gap Visual */}
         <ValueGapVisual finalPercentage={progress} />
 
-        <section className="grid md:grid-cols-2 gap-6">
-          <div className="bg-white p-6 rounded-2xl shadow border border-gray-100 flex items-start gap-4">
-            <div className="p-3 bg-accent rounded-full text-primary">
-              <Award size={24} />
+        {/* NDVI / Satellite Card */}
+        {credits && (
+          <section className="bg-gradient-to-br from-emerald-950 to-primary p-6 rounded-3xl text-white shadow-lg">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-white/10 rounded-xl">
+                <Satellite size={20} className="text-emerald-300" />
+              </div>
+              <h2 className="font-bold text-lg">Satellite Intelligence</h2>
             </div>
-            <div>
-              <h3 className="font-bold text-lg mb-1">Social Premium</h3>
-              <p className="text-gray-600 text-sm">Verified through Ward Protocol based on family composition and gender focus.</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white/10 rounded-2xl p-4">
+                <div className="text-xs text-white/60 uppercase tracking-wider mb-1">NDVI Score</div>
+                <div className="text-3xl font-extrabold text-emerald-300">
+                  {ndviScore !== null ? ndviScore.toFixed(3) : "N/A"}
+                </div>
+                <div className="text-xs text-white/50 mt-1">Sentinel-2 · Last 90 days</div>
+                {/* NDVI bar */}
+                {ndviScore !== null && (
+                  <div className="mt-3 h-2 bg-white/10 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-yellow-400 to-emerald-400 rounded-full transition-all duration-1000"
+                      style={{ width: `${ndviScore * 100}%` }}
+                    />
+                  </div>
+                )}
+              </div>
+              <div className="bg-white/10 rounded-2xl p-4">
+                <div className="text-xs text-white/60 uppercase tracking-wider mb-1">W_regen Multiplier</div>
+                <div className="text-3xl font-extrabold text-emerald-300">
+                  {credits.w_regen.toFixed(2)}
+                </div>
+                <div className="text-xs text-white/50 mt-1">Range: 0.3 – 1.5</div>
+                <div className="mt-3 h-2 bg-white/10 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-blue-400 to-emerald-300 rounded-full transition-all duration-1000"
+                    style={{ width: `${((credits.w_regen - 0.3) / 1.2) * 100}%` }}
+                  />
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="bg-white p-6 rounded-2xl shadow border border-gray-100 flex items-start gap-4">
-            <div className="p-3 bg-accent rounded-full text-primary">
-              <Leaf size={24} />
-            </div>
-            <div>
-              <h3 className="font-bold text-lg mb-1">Regenerative Multiplier</h3>
-              <p className="text-gray-600 text-sm">Satellite verified NDWI & NDVI scores integrated via Google Earth Engine.</p>
-            </div>
+          </section>
+        )}
+
+        {/* AIC Breakdown */}
+        {credits && farm && (
+          <AICBreakdown
+            wSocial={credits.w_social}
+            wRegen={credits.w_regen}
+            gapFactor={credits.gap_factor}
+            areaHectares={farm.area_hectares}
+            yearlyYield={farmer.yearly_yield}
+            totalAic={credits.total_aic}
+          />
+        )}
+
+        {/* Social Profile Card */}
+        <section className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+          <h2 className="font-bold text-primary mb-4 flex items-center gap-2">
+            <Award size={18} /> Social Impact Profile
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {[
+              { label: "Total Family", value: farmer.total_family },
+              { label: "Female Members", value: farmer.female_members },
+              { label: "Unmarried Girls", value: farmer.unmarried_girls },
+              { label: "W_social Score", value: credits?.w_social.toFixed(2) ?? "—" },
+            ].map((item) => (
+              <div key={item.label} className="bg-accent/30 rounded-2xl p-4 text-center">
+                <div className="text-2xl font-extrabold text-primary">{item.value}</div>
+                <div className="text-xs text-gray-500 mt-1">{item.label}</div>
+              </div>
+            ))}
           </div>
         </section>
-        
+
+        {/* No credits yet */}
+        {!credits && (
+          <div className="text-center py-10 bg-white rounded-2xl border border-dashed border-gray-200">
+            <p className="text-gray-500 mb-4">No AIC credits calculated yet.</p>
+            <Link href="/intake" className="inline-flex items-center gap-2 bg-primary text-accent px-6 py-3 rounded-full font-bold hover:bg-primary/90 transition-colors text-sm">
+              Complete Intake Flow <ArrowRight size={16} />
+            </Link>
+          </div>
+        )}
       </main>
     </div>
   );
