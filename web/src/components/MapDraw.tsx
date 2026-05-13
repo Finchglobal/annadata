@@ -1,73 +1,105 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-import "leaflet-draw/dist/leaflet.draw.css";
-import "leaflet-draw";
-
-// Fix for default Leaflet icon missing in Next.js
-delete (L.Icon.Default.prototype as any)._getIconUrl; // eslint-disable-line @typescript-eslint/no-explicit-any
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
-  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-});
+import { useEffect, useRef, useCallback } from "react";
 
 interface MapDrawProps {
-  onPolygonDrawn: (areaHectares: number, geojson: any) => void; // eslint-disable-line @typescript-eslint/no-explicit-any
+  onPolygonDrawn: (areaHectares: number, geojson: object) => void;
 }
 
 export default function MapDraw({ onPolygonDrawn }: MapDrawProps) {
   const mapRef = useRef<HTMLDivElement>(null);
-  const [map, setMap] = useState<L.Map | null>(null);
-  const featureGroupRef = useRef<L.FeatureGroup>(new L.FeatureGroup());
+  const mapInstanceRef = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const featureGroupRef = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
+
+  const handlePolygonDrawn = useCallback(
+    (areaHectares: number, geojson: object) => {
+      onPolygonDrawn(areaHectares, geojson);
+    },
+    [onPolygonDrawn]
+  );
 
   useEffect(() => {
-    if (typeof window === "undefined" || !mapRef.current || map) return;
+    if (typeof window === "undefined" || !mapRef.current || mapInstanceRef.current) return;
 
-    const m = L.map(mapRef.current).setView([20.5937, 78.9629], 5); // Default to India
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "© OpenStreetMap contributors",
-    }).addTo(m);
+    // Dynamically import Leaflet to ensure it only runs client-side
+    async function initMap() {
+      const L = (await import("leaflet")).default;
+      await import("leaflet-draw");
 
-    featureGroupRef.current.addTo(m);
+      // Fix Leaflet default icon paths broken by webpack
+      // @ts-expect-error - _getIconUrl is not in the types
+      delete L.Icon.Default.prototype._getIconUrl;
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+        iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+        shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+      });
 
-    const drawControl = new L.Control.Draw({
-      edit: {
-        featureGroup: featureGroupRef.current,
-      },
-      draw: {
-        polygon: {},
-        polyline: false,
-        rectangle: false,
-        circle: false,
-        circlemarker: false,
-        marker: false,
-      },
-    });
+      // Init map centered on India
+      const map = L.map(mapRef.current!, {
+        center: [20.5937, 78.9629],
+        zoom: 5,
+      });
 
-    m.addControl(drawControl);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors",
+        maxZoom: 19,
+      }).addTo(map);
 
-    m.on(L.Draw.Event.CREATED, (e: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
-      const layer = e.layer;
-      featureGroupRef.current.clearLayers();
-      featureGroupRef.current.addLayer(layer);
+      const featureGroup = new L.FeatureGroup();
+      featureGroup.addTo(map);
+      featureGroupRef.current = featureGroup;
 
-      // Calculate area in square meters using Leaflet GeometryUtil
-      const latlngs = layer.getLatLngs()[0];
-      const areaSqMeters = L.GeometryUtil.geodesicArea(latlngs);
-      const areaHectares = areaSqMeters / 10000;
+      const drawControl = new L.Control.Draw({
+        edit: { featureGroup },
+        draw: {
+          polygon: {
+            allowIntersection: false,
+            showArea: true,
+            shapeOptions: { color: "#1b4332", fillColor: "#d8f3dc", fillOpacity: 0.4 },
+          },
+          polyline: false,
+          rectangle: false,
+          circle: false,
+          circlemarker: false,
+          marker: false,
+        },
+      });
+      map.addControl(drawControl);
 
-      onPolygonDrawn(areaHectares, layer.toGeoJSON());
-    });
+      map.on(L.Draw.Event.CREATED, (e: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+        const layer = e.layer;
+        featureGroup.clearLayers();
+        featureGroup.addLayer(layer);
 
-    setMap(m);
+        const latlngs = layer.getLatLngs()[0];
+        const areaSqMeters = L.GeometryUtil.geodesicArea(latlngs);
+        const areaHectares = areaSqMeters / 10000;
+
+        handlePolygonDrawn(areaHectares, layer.toGeoJSON());
+      });
+
+      mapInstanceRef.current = map;
+
+      // Force Leaflet to recalculate size after mount
+      setTimeout(() => map.invalidateSize(), 200);
+    }
+
+    initMap();
 
     return () => {
-      m.remove();
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
     };
-  }, [map, onPolygonDrawn]);
+  }, [handlePolygonDrawn]);
 
-  return <div ref={mapRef} className="w-full h-[400px] rounded-lg z-0" />;
+  return (
+    <div
+      ref={mapRef}
+      style={{ height: "420px", width: "100%" }}
+      className="rounded-xl border border-gray-200 overflow-hidden z-0"
+    />
+  );
 }
