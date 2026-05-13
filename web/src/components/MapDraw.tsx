@@ -81,11 +81,21 @@ export default function MapDraw({ onPolygonDrawn }: MapDrawProps) {
 
       mapInstanceRef.current = map;
 
+      console.log("Leaflet initialized successfully");
+
       // Force Leaflet to recalculate size after mount
-      setTimeout(() => map.invalidateSize(), 200);
+      setTimeout(() => {
+        console.log("Invalidating map size");
+        map.invalidateSize();
+      }, 500);
+      
+      // A second one for good measure (some browsers need a bit more time)
+      setTimeout(() => map.invalidateSize(), 1500);
     }
 
-    initMap();
+    initMap().catch(err => {
+      console.error("Leaflet initialization failed:", err);
+    });
 
     return () => {
       if (mapInstanceRef.current) {
