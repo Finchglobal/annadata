@@ -44,6 +44,22 @@ export default function DashboardPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push("/login"); return; }
 
+      // Check role
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+      if (profile?.role === "admin") {
+        router.push("/admin");
+        return;
+      }
+      if (profile?.role === "ward_member") {
+        router.push("/ward");
+        return;
+      }
+
       const { data: farmerData } = await supabase
         .from("farmers")
         .select("id, full_name, village, total_family, female_members, unmarried_girls, yearly_yield, is_verified")
