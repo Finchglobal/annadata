@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useCallback, useState } from "react";
 import { Search, Loader2 } from "lucide-react";
+import { FOCUS_DISTRICTS, INDIA_STATES } from "@/lib/indiaData";
 
 interface MapDrawProps {
   onPolygonDrawn: (areaHectares: number, geojson: object) => void;
@@ -136,7 +137,8 @@ export default function MapDraw({ onPolygonDrawn, initialSearch }: MapDrawProps)
         mapInstanceRef.current = null;
       }
     };
-  }, [handlePolygonDrawn, initialSearch?.village, initialSearch?.district, initialSearch?.state]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [handlePolygonDrawn]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async function performSearch(map: any, village: string, district: string, state: string) {
@@ -172,10 +174,9 @@ export default function MapDraw({ onPolygonDrawn, initialSearch }: MapDrawProps)
           onChange={(e) => setSearchQuery({ ...searchQuery, state: e.target.value })}
         >
           <option value="">Select State</option>
-          <option value="Uttar Pradesh">Uttar Pradesh</option>
-          <option value="Madhya Pradesh">Madhya Pradesh</option>
-          <option value="Karnataka">Karnataka</option>
-          <option value="West Bengal">West Bengal</option>
+          {INDIA_STATES.map((s) => (
+            <option key={s} value={s}>{s}</option>
+          ))}
         </select>
         <select
           className="p-2 text-sm border rounded-lg outline-none focus:ring-1 focus:ring-primary bg-white text-gray-800"
@@ -183,10 +184,9 @@ export default function MapDraw({ onPolygonDrawn, initialSearch }: MapDrawProps)
           onChange={(e) => setSearchQuery({ ...searchQuery, district: e.target.value })}
         >
           <option value="">Select District</option>
-          <option value="Banda">Banda</option>
-          <option value="Chitrakoot">Chitrakoot</option>
-          <option value="Koppal">Koppal</option>
-          <option value="Purulia">Purulia</option>
+          {FOCUS_DISTRICTS.map((d) => (
+            <option key={d} value={d}>{d}</option>
+          ))}
         </select>
         <input
           type="text"

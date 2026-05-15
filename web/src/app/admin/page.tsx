@@ -21,6 +21,7 @@ interface Farmer {
   female_members: number;
   unmarried_girls: number;
   yearly_yield: number;
+  is_verified?: boolean;
 }
 
 interface Assignment {
@@ -86,6 +87,16 @@ export default function AdminPortal() {
       .update({ role: "ward_member" })
       .eq("id", userId);
     
+    if (error) alert(error.message);
+    else fetchData();
+  }
+
+  async function verifyFarmer(farmerId: string) {
+    const { error } = await supabase
+      .from("farmers")
+      .update({ is_verified: true })
+      .eq("user_id", farmerId);
+      
     if (error) alert(error.message);
     else fetchData();
   }
@@ -199,6 +210,16 @@ export default function AdminPortal() {
                               <span className="text-gray-500 font-bold uppercase tracking-wider block mb-1">Family</span>
                               <span className="font-medium text-gray-800">{fData.total_family} Members ({fData.female_members} F, {fData.unmarried_girls} UG)</span>
                             </div>
+                            {fData.is_verified === false && (
+                              <div className="col-span-2 mt-2">
+                                <button
+                                  onClick={() => verifyFarmer(fData.user_id)}
+                                  className="w-full bg-primary text-accent py-2 rounded-xl text-xs font-bold hover:bg-emerald-900 transition-all flex items-center justify-center gap-2 shadow-lg"
+                                >
+                                  <CheckCircle size={14} /> 1-Tap Verify (Admin Override)
+                                </button>
+                              </div>
+                            )}
                           </div>
                         ) : (
                           <p className="text-gray-500 italic">No intake form submitted yet.</p>

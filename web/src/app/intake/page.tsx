@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { ArrowRight, ArrowLeft, Map as MapIcon, Sprout, Users, MapPin } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { FOCUS_DISTRICTS } from "@/lib/indiaData";
 
 const MapDraw = dynamic(() => import("@/components/MapDraw"), { ssr: false });
 
@@ -105,7 +106,7 @@ export default function IntakePage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground p-6 flex flex-col items-center">
-      <div className="w-full max-w-xl bg-white shadow-xl rounded-2xl p-8 border border-primary/10">
+      <div className="w-full max-w-xl bg-white text-gray-900 shadow-xl rounded-2xl p-8 border border-primary/10">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl font-bold text-primary flex items-center gap-2">
             {step === 1 && <><Users /> Step 1: Identity</>}
@@ -157,11 +158,10 @@ export default function IntakePage() {
                     onChange={handleChange}
                     className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary outline-none bg-white"
                   >
-                    <option value="">Select</option>
-                    <option value="Banda">Banda</option>
-                    <option value="Chitrakoot">Chitrakoot</option>
-                    <option value="Koppal">Koppal</option>
-                    <option value="Purulia">Purulia</option>
+                    <option value="">Select District</option>
+                    {FOCUS_DISTRICTS.map((d) => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
                   </select>
                 </div>
               </div>
