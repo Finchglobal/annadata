@@ -41,56 +41,61 @@ export default function DashboardPage() {
 
   useEffect(() => {
     async function loadData() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.push("/login"); return; }
+      try {
+        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        if (!user || authError) { router.push("/login"); return; }
 
-      // Check role
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .single();
+        // Check role
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single();
 
-      if (profile?.role === "admin") {
-        router.push("/admin");
-        return;
-      }
-      if (profile?.role === "ward_member") {
-        router.push("/ward");
-        return;
-      }
-
-      const { data: farmerData } = await supabase
-        .from("farmers")
-        .select("id, full_name, village, total_family, female_members, unmarried_girls, yearly_yield, is_verified")
-        .eq("user_id", user.id)
-        .single();
-
-      if (farmerData) {
-        setFarmer(farmerData);
-
-        const [{ data: creditData }, { data: farmData }] = await Promise.all([
-          supabase.from("impact_credits")
-            .select("total_aic, w_social, w_regen, gap_factor, calculated_at")
-            .eq("farmer_id", farmerData.id)
-            .order("calculated_at", { ascending: false })
-            .limit(1)
-            .single(),
-          supabase.from("farms")
-            .select("area_hectares")
-            .eq("farmer_id", farmerData.id)
-            .order("created_at", { ascending: false })
-            .limit(1)
-            .single(),
-        ]);
-
-        if (creditData) {
-          setCredits(creditData);
-          setProgress(Math.min(100, 16 + (creditData.gap_factor * 100)));
+        if (profile?.role === "admin") {
+          router.push("/admin");
+          return;
         }
-        if (farmData) setFarm(farmData);
+        if (profile?.role === "ward_member") {
+          router.push("/ward");
+          return;
+        }
+
+        const { data: farmerData } = await supabase
+          .from("farmers")
+          .select("id, full_name, village, total_family, female_members, unmarried_girls, yearly_yield, is_verified")
+          .eq("user_id", user.id)
+          .single();
+
+        if (farmerData) {
+          setFarmer(farmerData);
+
+          const [{ data: creditData }, { data: farmData }] = await Promise.all([
+            supabase.from("impact_credits")
+              .select("total_aic, w_social, w_regen, gap_factor, calculated_at")
+              .eq("farmer_id", farmerData.id)
+              .order("calculated_at", { ascending: false })
+              .limit(1)
+              .single(),
+            supabase.from("farms")
+              .select("area_hectares")
+              .eq("farmer_id", farmerData.id)
+              .order("created_at", { ascending: false })
+              .limit(1)
+              .single(),
+          ]);
+
+          if (creditData) {
+            setCredits(creditData);
+            setProgress(Math.min(100, 16 + (creditData.gap_factor * 100)));
+          }
+          if (farmData) setFarm(farmData);
+        }
+      } catch (error) {
+        console.error("Dashboard failed to load data:", error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     loadData();
   }, [router]);
