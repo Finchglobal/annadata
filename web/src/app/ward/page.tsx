@@ -126,10 +126,7 @@ export default function WardPortalPage() {
         .update({ status, notes: note, verified_at: new Date().toISOString() })
         .eq("id", verificationId);
     } else {
-       // Get current member ID (requires join or fetch)
-       const { data: { user } } = await supabase.auth.getUser();
-       // Note: In a real app, I'd have a 'ward_members' table record linked 1:1 to profile
-       // For this MVP, I'll just use the user_id as the proxy if needed.
+       // Ward member verification record not created via RPC — skip for MVP
     }
 
     if (status === "approved") {

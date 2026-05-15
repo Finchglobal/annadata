@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ShieldAlert, Users, Plus, Trash2, Search, CheckCircle, MapPin } from "lucide-react";
+import { ShieldAlert, Users, Plus, Trash2, CheckCircle, MapPin } from "lucide-react";
 
 interface Profile {
   id: string;
@@ -25,7 +25,6 @@ export default function AdminPortal() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
-  const [loading, setLoading] = useState(true);
   
   // Form State
   const [selectedUser, setSelectedUser] = useState<string>("");
@@ -33,6 +32,7 @@ export default function AdminPortal() {
 
   useEffect(() => {
     checkAdmin();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function checkAdmin() {
@@ -59,12 +59,10 @@ export default function AdminPortal() {
   }
 
   async function fetchData() {
-    setLoading(true);
     const { data: p } = await supabase.from("profiles").select("*");
     const { data: a } = await supabase.from("ward_assignments").select("*");
     setProfiles(p || []);
     setAssignments(a || []);
-    setLoading(false);
   }
 
   async function promoteToWardMember(userId: string) {

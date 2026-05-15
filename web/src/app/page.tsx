@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { 
   Leaf, ArrowRight, Satellite, Users, ShieldCheck, 
-  TrendingUp, IndianRupee, Sprout, Globe, Shield, 
+  IndianRupee, Sprout, Globe, Shield, 
   CheckCircle2, BarChart3, Zap
 } from "lucide-react";
 

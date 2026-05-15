@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useCallback, useState } from "react";
-import { Search, MapPin, Loader2 } from "lucide-react";
+import { Search, Loader2 } from "lucide-react";
 
 interface MapDrawProps {
   onPolygonDrawn: (areaHectares: number, geojson: object) => void;
@@ -127,6 +127,7 @@ export default function MapDraw({ onPolygonDrawn, initialSearch }: MapDrawProps)
     };
   }, [handlePolygonDrawn]);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async function performSearch(map: any, village: string, district: string, state: string) {
     const q = `${village}, ${district}, ${state}, India`;
     try {
