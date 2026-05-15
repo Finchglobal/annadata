@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Wallet, Award, Leaf, Satellite, ShieldCheck, ShieldAlert, ArrowRight, LogOut } from "lucide-react";
+import { Wallet, Award, Satellite, ShieldCheck, ShieldAlert, ArrowRight, LogOut } from "lucide-react";
+import Logo from "@/components/Logo";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import ValueGapVisual from "@/components/ValueGapVisual";
@@ -110,7 +111,7 @@ export default function DashboardPage() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="inline-block p-4 bg-primary rounded-2xl mb-4 animate-pulse">
-            <Leaf className="text-accent" size={32} />
+            <Logo className="text-accent" size={32} />
           </div>
           <p className="text-primary font-bold">Loading your Trust Dashboard...</p>
         </div>
@@ -123,7 +124,7 @@ export default function DashboardPage() {
       <div className="min-h-screen bg-background flex items-center justify-center p-6">
         <div className="text-center max-w-sm">
           <div className="p-4 bg-accent rounded-2xl inline-block mb-4">
-            <Leaf className="text-primary" size={32} />
+            <Logo className="text-primary" size={32} />
           </div>
           <h2 className="text-xl font-bold text-primary mb-2">No Profile Found</h2>
           <p className="text-gray-600 mb-6">Complete the intake flow first to generate your Impact Credits.</p>
@@ -144,7 +145,7 @@ export default function DashboardPage() {
         <div className="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <div className="p-1.5 bg-accent/20 rounded-lg">
-              <Leaf size={18} className="text-accent" />
+              <Logo size={18} className="text-accent" />
             </div>
             <div>
               <div className="font-bold text-sm">Trust Dashboard</div>

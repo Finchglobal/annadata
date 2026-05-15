@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ShieldCheck, LogOut, CheckCircle, XCircle, Clock, Leaf, User, MapPin, ArrowRight, LayoutGrid } from "lucide-react";
+import { ShieldCheck, LogOut, CheckCircle, XCircle, Clock, User, MapPin, ArrowRight, LayoutGrid } from "lucide-react";
+import Logo from "@/components/Logo";
 
 interface PendingFarmer {
   id: string;
@@ -246,7 +247,7 @@ export default function WardPortalPage() {
         {!loading && farmers.length === 0 && (
           <div className="text-center py-32 bg-white rounded-[3rem] border-2 border-dashed border-emerald-50 flex flex-col items-center">
             <div className="p-6 bg-emerald-50 rounded-full mb-6">
-               <Leaf size={48} className="text-emerald-200" />
+               <Logo size={48} className="text-emerald-200" />
             </div>
             <h3 className="text-xl font-bold text-primary mb-2 italic">No Farmers in Ward {selectedWard?.ward_number}</h3>
             <p className="text-gray-400 max-w-xs mx-auto text-sm">No submissions detected for this jurisdiction yet.</p>

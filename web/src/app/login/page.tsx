@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { Leaf, ArrowRight, Mail, ShieldCheck, Loader2 } from "lucide-react";
+import { ArrowRight, Mail, ShieldCheck, Loader2 } from "lucide-react";
+import Logo from "@/components/Logo";
 
 type Step = "email" | "otp" | "done";
 
@@ -96,7 +97,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="flex flex-col items-center mb-10">
           <div className="p-4 bg-primary rounded-[1.5rem] shadow-2xl shadow-emerald-900/20 mb-5">
-            <Leaf className="text-accent" size={36} />
+            <Logo className="text-accent" size={36} />
           </div>
           <h1 className="text-3xl font-black text-primary tracking-tighter">Annadata AIC</h1>
           <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mt-1">Impact Credit Platform · India</p>

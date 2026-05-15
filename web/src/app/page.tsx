@@ -1,6 +1,7 @@
 import Link from "next/link";
+import Logo from "@/components/Logo";
 import { 
-  Leaf, ArrowRight, Satellite, Users, ShieldCheck, 
+  ArrowRight, Satellite, Users, ShieldCheck, 
   IndianRupee, Sprout, Globe, Shield, 
   CheckCircle2, BarChart3, Zap
 } from "lucide-react";
@@ -13,7 +14,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-2.5">
             <div className="p-2 bg-primary rounded-xl shadow-lg shadow-emerald-900/20">
-              <Leaf className="text-accent" size={22} />
+              <Logo className="text-accent" size={22} />
             </div>
             <div className="flex flex-col">
               <span className="text-xl font-black text-primary tracking-tighter leading-none">ANNADATA</span>
@@ -272,7 +273,7 @@ export default function Home() {
           <div className="col-span-2">
             <div className="flex items-center gap-2 mb-6">
               <div className="p-1.5 bg-primary rounded-lg">
-                <Leaf className="text-accent" size={18} />
+                <Logo className="text-accent" size={18} />
               </div>
               <span className="text-xl font-black text-primary tracking-tighter">ANNADATA</span>
             </div>
