@@ -1,0 +1,16 @@
+{
+  "name": "Annadata Impact Credits",
+  "short_name": "Annadata",
+  "description": "Functional, World-Class Impact Discovery Platform for India's Smallholders.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fcfdfa",
+  "theme_color": "#1b4332",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

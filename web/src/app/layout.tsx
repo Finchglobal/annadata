@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import Providers from "@/components/Providers";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -16,6 +17,8 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "Annadata Impact Credits | Bridging the 16% Gap",
   description: "Recognizing the social and environmental impact of India's Annadatas.",
+  manifest: "/manifest.json",
+  themeColor: "#1b4332",
 };
 
 export default function RootLayout({
@@ -40,7 +43,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );

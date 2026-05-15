@@ -1,5 +1,7 @@
 import Link from "next/link";
 import Logo from "@/components/Logo";
+import GapSlider from "@/components/GapSlider";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { 
   ArrowRight, Satellite, Users, ShieldCheck, 
   IndianRupee, Sprout, Globe, Shield, 
@@ -29,6 +31,7 @@ export default function Home() {
           </div>
 
           <div className="flex items-center gap-4">
+            <LanguageSwitcher />
             <Link href="/login" className="hidden sm:block text-sm font-bold text-primary hover:text-emerald-600 transition-colors">
               Login
             </Link>
@@ -76,6 +79,10 @@ export default function Home() {
               >
                 Explore Dashboard
               </Link>
+            </div>
+
+            <div className="w-full mt-16 z-10">
+              <GapSlider />
             </div>
 
             {/* Trusted By / Powered By */}

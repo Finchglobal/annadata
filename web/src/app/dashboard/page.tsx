@@ -1,12 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Wallet, Award, Satellite, ShieldCheck, ShieldAlert, ArrowRight, LogOut } from "lucide-react";
+import { Award, Satellite, ShieldCheck, ArrowRight, LogOut, CheckCircle2, Lock, Navigation } from "lucide-react";
 import Logo from "@/components/Logo";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import ValueGapVisual from "@/components/ValueGapVisual";
-import AICBreakdown from "@/components/AICBreakdown";
 import Link from "next/link";
 
 interface FarmerData {
@@ -38,7 +36,6 @@ export default function DashboardPage() {
   const [credits, setCredits] = useState<CreditData | null>(null);
   const [farm, setFarm] = useState<FarmData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [progress, setProgress] = useState(16);
 
   useEffect(() => {
     async function loadData() {
@@ -46,7 +43,6 @@ export default function DashboardPage() {
         const { data: { user }, error: authError } = await supabase.auth.getUser();
         if (!user || authError) { router.push("/login"); return; }
 
-        // Check role
         const { data: profile } = await supabase
           .from("profiles")
           .select("role")
@@ -86,10 +82,7 @@ export default function DashboardPage() {
               .single(),
           ]);
 
-          if (creditData) {
-            setCredits(creditData);
-            setProgress(Math.min(100, 16 + (creditData.gap_factor * 100)));
-          }
+          if (creditData) setCredits(creditData);
           if (farmData) setFarm(farmData);
         }
       } catch (error) {
@@ -108,12 +101,11 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block p-4 bg-primary rounded-2xl mb-4 animate-pulse">
+      <div className="min-h-screen bg-[#fcfdfa] flex items-center justify-center">
+        <div className="text-center animate-pulse">
+          <div className="inline-block p-4 bg-primary rounded-full mb-4 shadow-xl">
             <Logo className="text-accent" size={32} />
           </div>
-          <p className="text-primary font-bold">Loading your Trust Dashboard...</p>
         </div>
       </div>
     );
@@ -121,178 +113,200 @@ export default function DashboardPage() {
 
   if (!farmer) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <div className="min-h-screen bg-[#fcfdfa] flex items-center justify-center p-6">
         <div className="text-center max-w-sm">
-          <div className="p-4 bg-accent rounded-2xl inline-block mb-4">
+          <div className="p-4 bg-accent/30 rounded-2xl inline-block mb-4">
             <Logo className="text-primary" size={32} />
           </div>
-          <h2 className="text-xl font-bold text-primary mb-2">No Profile Found</h2>
-          <p className="text-gray-600 mb-6">Complete the intake flow first to generate your Impact Credits.</p>
-          <Link href="/intake" className="inline-flex items-center gap-2 bg-primary text-accent px-6 py-3 rounded-full font-bold hover:bg-primary/90 transition-colors">
-            Start Intake <ArrowRight size={18} />
+          <h2 className="text-2xl font-black text-primary mb-2">Welcome to Annadata</h2>
+          <p className="text-gray-600 mb-8 font-medium">To calculate your financial impact, we need to locate your farm.</p>
+          <Link href="/intake" className="inline-flex items-center gap-2 bg-primary text-accent px-8 py-4 rounded-full font-bold hover:bg-emerald-900 transition-all shadow-xl shadow-emerald-900/10 hover:scale-105 active:scale-95">
+            Start Genesis Trace <ArrowRight size={18} />
           </Link>
         </div>
       </div>
     );
   }
 
-  const ndviScore = credits ? ((credits.w_regen - 0.3) / 1.2) : null;
+  // Calculate Tier logically instead of DB field for safety
+  let currentTier = 1;
+  if (farmer.total_family > 0) currentTier = 2;
+  if (farmer.yearly_yield > 0) currentTier = 3;
+
+  const areaHectares = farm?.area_hectares || 0;
+  const ndviScore = credits ? ((credits.w_regen - 0.3) / 1.2) : 0.65;
+  
+  // Use absolute INR values instead of abstract credits
+  // If base INR is 10,000 per AIC
+  const conversionRate = 10000;
+  const inrValue = (credits?.total_aic || 0) * conversionRate;
+  
+  // Is Smallholder (inverse weighting logic visual feedback)
+  const isSmallholder = areaHectares > 0 && areaHectares < 2.0;
 
   return (
-    <div className="min-h-screen bg-gray-50 text-foreground">
-      {/* Header */}
-      <header className="bg-primary text-accent sticky top-0 z-10 shadow-lg">
+    <div className="min-h-screen bg-[#fcfdfa] text-foreground font-sans">
+      <header className="bg-primary text-accent sticky top-0 z-50 shadow-xl border-b border-white/10">
         <div className="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="p-1.5 bg-accent/20 rounded-lg">
-              <Logo size={18} className="text-accent" />
+            <div className="p-2 bg-white/10 rounded-xl backdrop-blur-sm">
+              <Logo size={20} className="text-accent" />
             </div>
             <div>
-              <div className="font-bold text-sm">Trust Dashboard</div>
-              {farmer.full_name && (
-                <div className="text-accent/70 text-xs">{farmer.full_name} · {farmer.village || "Village"}</div>
-              )}
+              <div className="font-black text-sm tracking-wide">FINANCIAL COMPASS</div>
+              <div className="text-accent/80 text-xs font-semibold">{farmer.full_name || "Annadata"}</div>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            {farmer.is_verified ? (
-              <span className="flex items-center gap-1 bg-green-500/20 text-green-300 border border-green-400/30 text-xs font-semibold px-3 py-1 rounded-full">
-                <ShieldCheck size={12} /> Verified
+          <div className="flex items-center gap-4">
+            <div className="hidden sm:flex items-center gap-2 bg-black/20 rounded-full px-3 py-1">
+              <span className={`w-2 h-2 rounded-full ${farmer.is_verified ? 'bg-green-400' : 'bg-yellow-400 animate-pulse'}`} />
+              <span className="text-xs font-bold uppercase tracking-wider text-white/90">
+                {farmer.is_verified ? 'Verified' : 'Pending'}
               </span>
-            ) : (
-              <span className="flex items-center gap-1 bg-yellow-500/20 text-yellow-300 border border-yellow-400/30 text-xs font-semibold px-3 py-1 rounded-full">
-                <ShieldAlert size={12} /> Pending Ward Verification
-              </span>
-            )}
-            <button onClick={handleLogout} className="text-accent/60 hover:text-accent">
+            </div>
+            <button onClick={handleLogout} className="text-accent/60 hover:text-accent p-2 hover:bg-white/10 rounded-full transition-colors">
               <LogOut size={18} />
             </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto p-6 space-y-6">
+      <main className="max-w-4xl mx-auto p-6 space-y-8 mt-6">
+        
+        {/* The Financial Compass */}
+        <section className="bg-primary text-white p-8 md:p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-accent/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3 group-hover:bg-accent/20 transition-colors duration-700 pointer-events-none" />
+          
+          <div className="relative z-10 flex flex-col items-center text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-accent text-xs font-bold uppercase tracking-widest mb-8">
+              <Navigation size={14} /> Level {currentTier} Impact Unlocked
+            </div>
 
-        {/* Annadata Wallet */}
-        <section className="bg-primary text-accent p-8 rounded-3xl shadow-2xl relative overflow-hidden">
-          <div className="absolute -top-10 -right-10 w-48 h-48 bg-white/5 rounded-full" />
-          <div className="absolute -bottom-16 -left-10 w-64 h-64 bg-white/5 rounded-full" />
-          <div className="relative z-10">
-            <div className="flex items-center gap-2 mb-4 opacity-80">
-              <Wallet size={18} />
-              <span className="text-sm font-semibold uppercase tracking-wider">Annadata Wallet</span>
+            <div className="text-sm font-bold text-accent/80 uppercase tracking-[0.2em] mb-2">Unrecognized Value</div>
+            <div className="text-6xl md:text-8xl font-black tracking-tighter mb-4 text-accent">
+              <span className="text-4xl md:text-5xl opacity-80 mr-1">₹</span>
+              {inrValue.toLocaleString("en-IN", { maximumFractionDigits: 0 })}
             </div>
-            <div className="text-5xl font-extrabold mb-2">
-              {credits ? credits.total_aic.toLocaleString("en-IN", { maximumFractionDigits: 0 }) : "0"}{" "}
-              <span className="text-2xl font-medium opacity-60">AIC</span>
-            </div>
-            <p className="text-accent/70 text-sm max-w-md">
-              Your Annadata Impact Credits represent your recognized contribution — verified by satellite, validated by your Ward Member.
+            
+            <p className="text-accent/70 font-medium max-w-lg mb-8">
+              This is the true absolute value of your social and environmental labor, bridging the 84% gap extracted by the supply chain.
             </p>
 
-            {/* Quick stats strip */}
-            <div className="grid grid-cols-3 gap-4 mt-8 pt-6 border-t border-white/10">
-              {[
-                { label: "Farm Area", value: farm ? `${farm.area_hectares.toFixed(2)} ha` : "—" },
-                { label: "Yearly Yield", value: farmer.yearly_yield ? `₹${farmer.yearly_yield.toLocaleString()}` : "—" },
-                { label: "NDVI Score", value: ndviScore !== null ? ndviScore.toFixed(2) : "—" },
-              ].map((s) => (
-                <div key={s.label}>
-                  <div className="text-xl font-bold">{s.value}</div>
-                  <div className="text-accent/60 text-xs mt-0.5">{s.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Value Gap Visual */}
-        <ValueGapVisual finalPercentage={progress} />
-
-        {/* NDVI / Satellite Card */}
-        {credits && (
-          <section className="bg-gradient-to-br from-emerald-950 to-primary p-6 rounded-3xl text-white shadow-lg">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-white/10 rounded-xl">
-                <Satellite size={20} className="text-emerald-300" />
-              </div>
-              <h2 className="font-bold text-lg">Satellite Intelligence</h2>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white/10 rounded-2xl p-4">
-                <div className="text-xs text-white/60 uppercase tracking-wider mb-1">NDVI Score</div>
-                <div className="text-3xl font-extrabold text-emerald-300">
-                  {ndviScore !== null ? ndviScore.toFixed(3) : "N/A"}
-                </div>
-                <div className="text-xs text-white/50 mt-1">Sentinel-2 · Last 90 days</div>
-                {/* NDVI bar */}
-                {ndviScore !== null && (
-                  <div className="mt-3 h-2 bg-white/10 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-yellow-400 to-emerald-400 rounded-full transition-all duration-1000"
-                      style={{ width: `${ndviScore * 100}%` }}
-                    />
+            {isSmallholder && (
+              <div className="w-full bg-accent text-primary px-6 py-4 rounded-2xl flex items-center justify-between shadow-inner">
+                <div className="flex items-center gap-3">
+                  <Award className="text-alert" size={24} />
+                  <div className="text-left">
+                    <div className="font-black">Smallholder Dividend Active</div>
+                    <div className="text-xs font-bold opacity-70">1.5x Inverse Weighting Applied</div>
                   </div>
-                )}
-              </div>
-              <div className="bg-white/10 rounded-2xl p-4">
-                <div className="text-xs text-white/60 uppercase tracking-wider mb-1">W_regen Multiplier</div>
-                <div className="text-3xl font-extrabold text-emerald-300">
-                  {credits.w_regen.toFixed(2)}
                 </div>
-                <div className="text-xs text-white/50 mt-1">Range: 0.3 – 1.5</div>
-                <div className="mt-3 h-2 bg-white/10 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-blue-400 to-emerald-300 rounded-full transition-all duration-1000"
-                    style={{ width: `${((credits.w_regen - 0.3) / 1.2) * 100}%` }}
-                  />
-                </div>
+                <div className="font-black text-xl">+50%</div>
               </div>
-            </div>
-          </section>
-        )}
-
-        {/* AIC Breakdown */}
-        {credits && farm && (
-          <AICBreakdown
-            wSocial={credits.w_social}
-            wRegen={credits.w_regen}
-            gapFactor={credits.gap_factor}
-            areaHectares={farm.area_hectares}
-            yearlyYield={farmer.yearly_yield}
-            totalAic={credits.total_aic}
-          />
-        )}
-
-        {/* Social Profile Card */}
-        <section className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
-          <h2 className="font-bold text-primary mb-4 flex items-center gap-2">
-            <Award size={18} /> Social Impact Profile
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {[
-              { label: "Total Family", value: farmer.total_family },
-              { label: "Female Members", value: farmer.female_members },
-              { label: "Unmarried Girls", value: farmer.unmarried_girls },
-              { label: "W_social Score", value: credits?.w_social.toFixed(2) ?? "—" },
-            ].map((item) => (
-              <div key={item.label} className="bg-accent/30 rounded-2xl p-4 text-center">
-                <div className="text-2xl font-extrabold text-primary">{item.value}</div>
-                <div className="text-xs text-gray-500 mt-1">{item.label}</div>
-              </div>
-            ))}
+            )}
           </div>
         </section>
 
-        {/* No credits yet */}
-        {!credits && (
-          <div className="text-center py-10 bg-white rounded-2xl border border-dashed border-gray-200">
-            <p className="text-gray-500 mb-4">No AIC credits calculated yet.</p>
-            <Link href="/intake" className="inline-flex items-center gap-2 bg-primary text-accent px-6 py-3 rounded-full font-bold hover:bg-primary/90 transition-colors text-sm">
-              Complete Intake Flow <ArrowRight size={16} />
-            </Link>
+        {/* Tiered Onboarding Journey */}
+        <section className="bg-white rounded-[2.5rem] p-8 shadow-xl border border-primary/5">
+          <h3 className="text-xl font-black text-primary mb-8 flex items-center gap-2">
+            <ShieldCheck className="text-accent fill-primary" /> The Impact Journey
+          </h3>
+
+          <div className="space-y-4">
+            {/* Level 1 */}
+            <div className={`p-5 rounded-2xl border-2 transition-all ${currentTier >= 1 ? 'border-primary/20 bg-primary/5' : 'border-gray-100 bg-gray-50'}`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black ${currentTier >= 1 ? 'bg-primary text-accent' : 'bg-gray-200 text-gray-400'}`}>
+                    {currentTier > 1 ? <CheckCircle2 size={20} /> : '1'}
+                  </div>
+                  <div>
+                    <h4 className={`font-black ${currentTier >= 1 ? 'text-primary' : 'text-gray-400'}`}>Genesis</h4>
+                    <p className="text-sm font-semibold text-gray-500">Map & UPI Onboarding</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  {currentTier >= 1 ? (
+                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-100 px-3 py-1 rounded-full">Completed</span>
+                  ) : (
+                    <Link href="/intake" className="text-sm font-bold text-primary underline underline-offset-4">Start</Link>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Level 2 */}
+            <div className={`p-5 rounded-2xl border-2 transition-all ${currentTier >= 2 ? 'border-primary/20 bg-primary/5' : currentTier === 1 ? 'border-accent bg-white' : 'border-gray-100 bg-gray-50'}`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black ${currentTier >= 2 ? 'bg-primary text-accent' : currentTier === 1 ? 'bg-accent text-primary' : 'bg-gray-200 text-gray-400'}`}>
+                    {currentTier > 2 ? <CheckCircle2 size={20} /> : currentTier === 1 ? '2' : <Lock size={16} />}
+                  </div>
+                  <div>
+                    <h4 className={`font-black ${currentTier >= 2 ? 'text-primary' : currentTier === 1 ? 'text-primary' : 'text-gray-400'}`}>Resilience</h4>
+                    <p className="text-sm font-semibold text-gray-500">Social Data & Family Pulse</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  {currentTier >= 2 ? (
+                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-100 px-3 py-1 rounded-full">Completed</span>
+                  ) : currentTier === 1 ? (
+                    <Link href="/intake" className="text-sm font-bold bg-primary text-accent px-4 py-2 rounded-full hover:bg-emerald-900 transition-colors">Unlock</Link>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+
+            {/* Level 3 */}
+            <div className={`p-5 rounded-2xl border-2 transition-all ${currentTier >= 3 ? 'border-primary/20 bg-primary/5' : currentTier === 2 ? 'border-accent bg-white' : 'border-gray-100 bg-gray-50'}`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black ${currentTier >= 3 ? 'bg-primary text-accent' : currentTier === 2 ? 'bg-accent text-primary' : 'bg-gray-200 text-gray-400'}`}>
+                    {currentTier >= 3 ? <CheckCircle2 size={20} /> : currentTier === 2 ? '3' : <Lock size={16} />}
+                  </div>
+                  <div>
+                    <h4 className={`font-black ${currentTier >= 3 ? 'text-primary' : currentTier === 2 ? 'text-primary' : 'text-gray-400'}`}>Verified</h4>
+                    <p className="text-sm font-semibold text-gray-500">Agri-Log & Yield Data</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  {currentTier >= 3 ? (
+                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-100 px-3 py-1 rounded-full">Completed</span>
+                  ) : currentTier === 2 ? (
+                     <Link href="/intake" className="text-sm font-bold bg-primary text-accent px-4 py-2 rounded-full hover:bg-emerald-900 transition-colors">Unlock</Link>
+                  ) : null}
+                </div>
+              </div>
+            </div>
           </div>
-        )}
+        </section>
+
+        {/* Verified Data Ledger */}
+        <section className="bg-white rounded-[2.5rem] p-8 shadow-xl border border-primary/5">
+          <h3 className="text-xl font-black text-primary mb-8 flex items-center gap-2">
+            <Satellite className="text-accent fill-primary" /> Verified Data Ledger
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="bg-gray-50 p-5 rounded-2xl">
+              <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Farm Area</div>
+              <div className="text-2xl font-black text-primary">{areaHectares > 0 ? `${areaHectares.toFixed(2)} ha` : "—"}</div>
+            </div>
+            <div className="bg-gray-50 p-5 rounded-2xl">
+              <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Yearly Yield</div>
+              <div className="text-2xl font-black text-primary">{farmer.yearly_yield > 0 ? `₹${farmer.yearly_yield.toLocaleString()}` : "—"}</div>
+            </div>
+            <div className="bg-gray-50 p-5 rounded-2xl">
+              <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">NDVI Score</div>
+              <div className="text-2xl font-black text-primary">{ndviScore > 0 ? ndviScore.toFixed(2) : "—"}</div>
+            </div>
+            <div className="bg-gray-50 p-5 rounded-2xl">
+              <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Female Members</div>
+              <div className="text-2xl font-black text-primary">{farmer.female_members > 0 ? farmer.female_members : "—"}</div>
+            </div>
+          </div>
+        </section>
+
       </main>
     </div>
   );

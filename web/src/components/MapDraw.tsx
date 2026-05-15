@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useCallback, useState } from "react";
 import { Search, Loader2 } from "lucide-react";
+import * as turf from "@turf/turf";
 
 interface MapDrawProps {
   onPolygonDrawn: (areaHectares: number, geojson: object) => void;
@@ -23,6 +24,7 @@ export default function MapDraw({ onPolygonDrawn, initialSearch }: MapDrawProps)
     village: initialSearch?.village || "",
   });
   const [isSearching, setIsSearching] = useState(false);
+  const [potentialReward, setPotentialReward] = useState<number | null>(null);
 
   const handlePolygonDrawn = useCallback(
     (areaHectares: number, geojson: object) => {
@@ -105,7 +107,23 @@ export default function MapDraw({ onPolygonDrawn, initialSearch }: MapDrawProps)
         const latlngs = layer.getLatLngs()[0];
         const areaSqMeters = L_inst.GeometryUtil.geodesicArea(latlngs);
         const areaHectares = areaSqMeters / 10000;
-        handlePolygonDrawn(areaHectares, layer.toGeoJSON());
+        
+        // Smoothing / magnetic behavior approximation using turf
+        let geojson = layer.toGeoJSON();
+        try {
+          // Simplify the polygon to remove redundant points and smooth it
+          geojson = turf.simplify(geojson, { tolerance: 0.0001, highQuality: false, mutate: true });
+        } catch(e) {
+          console.warn("Turf simplify failed", e);
+        }
+
+        // Potential reward calc (Base: 10000 INR per AIC approx)
+        // Assume base multiplier of 1.0 for projection
+        const multiplier = areaHectares < 2.0 ? 1.5 : 0.8;
+        const estAic = areaHectares * multiplier; 
+        setPotentialReward(Math.round(estAic * 10000));
+
+        handlePolygonDrawn(areaHectares, geojson);
       }
 
       mapInstanceRef.current = map;
@@ -125,7 +143,7 @@ export default function MapDraw({ onPolygonDrawn, initialSearch }: MapDrawProps)
         mapInstanceRef.current = null;
       }
     };
-  }, [handlePolygonDrawn]);
+  }, [handlePolygonDrawn, initialSearch?.village, initialSearch?.district, initialSearch?.state]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async function performSearch(map: any, village: string, district: string, state: string) {
@@ -197,6 +215,16 @@ export default function MapDraw({ onPolygonDrawn, initialSearch }: MapDrawProps)
         <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur shadow-sm border border-gray-100 p-3 rounded-xl z-[1000] text-[10px] font-bold text-gray-500 uppercase tracking-widest pointer-events-none">
           Use the toolbar to DRAW or EDIT points
         </div>
+
+        {/* Real-time Reward Counter */}
+        {potentialReward !== null && (
+          <div className="absolute top-4 right-4 bg-primary text-accent px-4 py-3 rounded-2xl shadow-2xl border border-white/20 z-[1000] flex flex-col items-end animate-in fade-in slide-in-from-top-4">
+            <span className="text-[10px] font-bold uppercase tracking-widest opacity-80 mb-1">Projected Reward</span>
+            <span className="text-xl font-black flex items-center gap-1">
+              ₹ {potentialReward.toLocaleString("en-IN")}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );

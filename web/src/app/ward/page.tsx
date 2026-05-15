@@ -42,7 +42,7 @@ export default function WardPortalPage() {
   const [selectedWard, setSelectedWard] = useState<WardAssignment | null>(null);
   const [farmers, setFarmers] = useState<PendingFarmer[]>([]);
   const [loading, setLoading] = useState(false);
-  const [notes, setNotes] = useState<Record<string, string>>({});
+  const [notes] = useState<Record<string, string>>({});
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   useEffect(() => {
@@ -309,30 +309,24 @@ export default function WardPortalPage() {
               </div>
 
               {isPending && (
-                <div className="space-y-4">
-                  <div className="relative">
-                     <textarea
-                       value={notes[farmer.id] || ""}
-                       onChange={(e) => setNotes((prev) => ({ ...prev, [farmer.id]: e.target.value }))}
-                       className="w-full p-6 bg-gray-50 border-2 border-gray-100 rounded-[1.5rem] text-sm focus:ring-4 focus:ring-primary/5 focus:border-primary outline-none transition-all resize-none font-medium"
-                       rows={3}
-                       placeholder="Add verification notes..."
-                     />
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-primary/5 p-4 rounded-3xl border border-primary/10">
+                  <div className="text-sm font-bold text-primary/70 px-4">
+                    Verify Level 1 Genesis Claim
                   </div>
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <button
-                      disabled={actionLoading === farmer.id}
-                      onClick={() => handleVerification(farmer.id, verification?.id, "approved")}
-                      className="flex-1 flex items-center justify-center gap-3 bg-primary text-accent py-4 rounded-2xl font-black hover:bg-emerald-900 transition-all shadow-xl shadow-emerald-900/10 disabled:opacity-50"
-                    >
-                      <CheckCircle size={20} /> {actionLoading === farmer.id ? "Syncing..." : "Approve"}
-                    </button>
+                  <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                     <button
                       disabled={actionLoading === farmer.id}
                       onClick={() => handleVerification(farmer.id, verification?.id, "rejected")}
-                      className="sm:w-1/3 flex items-center justify-center gap-3 bg-red-50 text-red-600 border-2 border-red-100 py-4 rounded-2xl font-black hover:bg-red-100 transition-all disabled:opacity-50"
+                      className="px-6 py-3 flex items-center justify-center gap-2 text-red-600 bg-white border border-red-100 rounded-full font-black hover:bg-red-50 transition-all disabled:opacity-50"
                     >
-                      <XCircle size={20} /> Reject
+                      <XCircle size={18} /> Reject
+                    </button>
+                    <button
+                      disabled={actionLoading === farmer.id}
+                      onClick={() => handleVerification(farmer.id, verification?.id, "approved")}
+                      className="px-8 py-3 flex items-center justify-center gap-2 bg-primary text-accent rounded-full font-black hover:bg-emerald-900 transition-all shadow-lg shadow-emerald-900/10 disabled:opacity-50"
+                    >
+                      <CheckCircle size={18} /> {actionLoading === farmer.id ? "Syncing..." : "1-Tap Approve"}
                     </button>
                   </div>
                 </div>

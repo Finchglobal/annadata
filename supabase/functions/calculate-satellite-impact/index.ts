@@ -286,9 +286,11 @@ serve(async (req) => {
     // ── 4. Gap Factor (84% unrecognized value) ─────────────────────────────────
     const gap_factor = 0.84
 
-    // ── 5. AIC Formula ────────────────────────────────────────────────────────
-    // AIC = (Area × [W_social + W_regen]) + (Yield × Gap_Factor)
-    const total_aic = area_hectares * (w_social + w_regen) + yearly_yield * gap_factor
+    // ── 5. AIC Formula with Inverse Weighting ──────────────────────────────────
+    // Smallholders (<2 Ha) get a 1.5x multiplier, large-scale get 0.8x.
+    const impact_multiplier = area_hectares < 2.0 ? 1.5 : 0.8;
+    const base_aic = area_hectares * (w_social + w_regen) + yearly_yield * gap_factor;
+    const total_aic = base_aic * impact_multiplier;
 
     // ── 6. Persist to impact_credits ──────────────────────────────────────────
     const { data, error } = await supabaseClient
