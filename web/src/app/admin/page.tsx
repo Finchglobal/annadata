@@ -3,13 +3,24 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ShieldAlert, Users, Plus, Trash2, CheckCircle, MapPin } from "lucide-react";
+import { ShieldAlert, Users, Plus, Trash2, CheckCircle, MapPin, ChevronDown, ChevronUp, Info } from "lucide-react";
 
 interface Profile {
   id: string;
   full_name: string;
   role: 'farmer' | 'ward_member' | 'admin';
   email?: string;
+}
+
+interface Farmer {
+  user_id: string;
+  full_name: string;
+  village: string;
+  district: string;
+  total_family: number;
+  female_members: number;
+  unmarried_girls: number;
+  yearly_yield: number;
 }
 
 interface Assignment {
@@ -25,6 +36,8 @@ export default function AdminPortal() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const [farmers, setFarmers] = useState<Farmer[]>([]);
+  const [expandedUser, setExpandedUser] = useState<string | null>(null);
   
   // Form State
   const [selectedUser, setSelectedUser] = useState<string>("");
@@ -61,8 +74,10 @@ export default function AdminPortal() {
   async function fetchData() {
     const { data: p } = await supabase.from("profiles").select("*");
     const { data: a } = await supabase.from("ward_assignments").select("*");
+    const { data: f } = await supabase.from("farmers").select("*");
     setProfiles(p || []);
     setAssignments(a || []);
+    setFarmers(f || []);
   }
 
   async function promoteToWardMember(userId: string) {
@@ -129,27 +144,69 @@ export default function AdminPortal() {
               </div>
               
               <div className="space-y-4">
-                {profiles.map((p) => (
-                  <div key={p.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                    <div>
-                      <div className="font-bold text-primary">{p.full_name || "Unnamed User"}</div>
-                      <div className="text-[10px] font-black uppercase tracking-widest text-gray-400">{p.role}</div>
+                {profiles.map((p) => {
+                  const fData = farmers.find(f => f.user_id === p.id);
+                  const displayName = p.full_name || fData?.full_name || "Unnamed User";
+                  const isExpanded = expandedUser === p.id;
+                  
+                  return (
+                  <div key={p.id} className="flex flex-col bg-gray-50 rounded-2xl border border-gray-100 overflow-hidden">
+                    <div className="flex items-center justify-between p-4">
+                      <div>
+                        <div className="font-bold text-primary">{displayName}</div>
+                        <div className="text-[10px] font-black uppercase tracking-widest text-gray-400">{p.role}</div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {p.role === "farmer" && (
+                          <button 
+                            onClick={() => promoteToWardMember(p.id)}
+                            className="text-[10px] font-black bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full hover:bg-emerald-200 transition-colors"
+                          >
+                            Promote
+                          </button>
+                        )}
+                        {p.role === "ward_member" && (
+                          <span className="flex items-center gap-1 text-[10px] font-black text-emerald-600 uppercase px-4 py-2">
+                            <CheckCircle size={12} /> Ward Member
+                          </span>
+                        )}
+                        <button 
+                          onClick={() => setExpandedUser(isExpanded ? null : p.id)}
+                          className="p-2 bg-gray-200 rounded-full hover:bg-gray-300 transition-colors"
+                        >
+                          {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                        </button>
+                      </div>
                     </div>
-                    {p.role === "farmer" && (
-                      <button 
-                        onClick={() => promoteToWardMember(p.id)}
-                        className="text-[10px] font-black bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full hover:bg-emerald-200 transition-colors"
-                      >
-                        Promote to Ward Member
-                      </button>
-                    )}
-                    {p.role === "ward_member" && (
-                      <span className="flex items-center gap-1 text-[10px] font-black text-emerald-600 uppercase">
-                        <CheckCircle size={12} /> Ward Member
-                      </span>
+                    
+                    {isExpanded && (
+                      <div className="p-4 bg-white border-t border-gray-100 text-sm">
+                        <h4 className="font-bold text-primary flex items-center gap-2 mb-3">
+                          <Info size={16} className="text-accent" />
+                          User Details
+                        </h4>
+                        {fData ? (
+                          <div className="grid grid-cols-2 gap-4 text-xs">
+                            <div>
+                              <span className="text-gray-400 font-bold uppercase tracking-wider block mb-1">Location</span>
+                              <span className="font-medium text-gray-800">{fData.village}, {fData.district}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-400 font-bold uppercase tracking-wider block mb-1">Yearly Yield</span>
+                              <span className="font-medium text-gray-800">₹{fData.yearly_yield?.toLocaleString() || 0}</span>
+                            </div>
+                            <div>
+                              <span className="text-gray-400 font-bold uppercase tracking-wider block mb-1">Family</span>
+                              <span className="font-medium text-gray-800">{fData.total_family} Members ({fData.female_members} F, {fData.unmarried_girls} UG)</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-gray-500 italic">No intake form submitted yet.</p>
+                        )}
+                      </div>
                     )}
                   </div>
-                ))}
+                )})}
               </div>
             </div>
           </div>
