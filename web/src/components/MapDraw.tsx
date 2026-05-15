@@ -1,15 +1,28 @@
 "use client";
 
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
+import { Search, MapPin, Loader2 } from "lucide-react";
 
 interface MapDrawProps {
   onPolygonDrawn: (areaHectares: number, geojson: object) => void;
+  initialSearch?: {
+    state?: string;
+    district?: string;
+    village?: string;
+  };
 }
 
-export default function MapDraw({ onPolygonDrawn }: MapDrawProps) {
+export default function MapDraw({ onPolygonDrawn, initialSearch }: MapDrawProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
   const featureGroupRef = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
+  
+  const [searchQuery, setSearchQuery] = useState({
+    state: initialSearch?.state || "",
+    district: initialSearch?.district || "",
+    village: initialSearch?.village || "",
+  });
+  const [isSearching, setIsSearching] = useState(false);
 
   const handlePolygonDrawn = useCallback(
     (areaHectares: number, geojson: object) => {
@@ -21,13 +34,12 @@ export default function MapDraw({ onPolygonDrawn }: MapDrawProps) {
   useEffect(() => {
     if (typeof window === "undefined" || !mapRef.current || mapInstanceRef.current) return;
 
-    // Dynamically import Leaflet to ensure it only runs client-side
     async function initMap() {
       const L = (await import("leaflet")).default;
       await import("leaflet-draw");
 
-      // Fix Leaflet default icon paths broken by webpack
-      // @ts-expect-error - _getIconUrl is not in the types
+      // Fix icon paths
+      // @ts-expect-error - _getIconUrl is not in types
       delete L.Icon.Default.prototype._getIconUrl;
       L.Icon.Default.mergeOptions({
         iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
@@ -35,7 +47,6 @@ export default function MapDraw({ onPolygonDrawn }: MapDrawProps) {
         shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
       });
 
-      // Init map centered on India
       const map = L.map(mapRef.current!, {
         center: [20.5937, 78.9629],
         zoom: 5,
@@ -51,12 +62,20 @@ export default function MapDraw({ onPolygonDrawn }: MapDrawProps) {
       featureGroupRef.current = featureGroup;
 
       const drawControl = new L.Control.Draw({
-        edit: { featureGroup },
+        edit: {
+          featureGroup: featureGroup,
+          remove: true,
+        },
         draw: {
           polygon: {
             allowIntersection: false,
             showArea: true,
-            shapeOptions: { color: "#1b4332", fillColor: "#d8f3dc", fillOpacity: 0.4 },
+            shapeOptions: {
+              color: "#1b4332",
+              fillColor: "#d8f3dc",
+              fillOpacity: 0.4,
+              weight: 3,
+            },
           },
           polyline: false,
           rectangle: false,
@@ -67,35 +86,38 @@ export default function MapDraw({ onPolygonDrawn }: MapDrawProps) {
       });
       map.addControl(drawControl);
 
+      // Handle creation
       map.on(L.Draw.Event.CREATED, (e: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
         const layer = e.layer;
         featureGroup.clearLayers();
         featureGroup.addLayer(layer);
-
-        const latlngs = layer.getLatLngs()[0];
-        const areaSqMeters = L.GeometryUtil.geodesicArea(latlngs);
-        const areaHectares = areaSqMeters / 10000;
-
-        handlePolygonDrawn(areaHectares, layer.toGeoJSON());
+        updatePolygonData(L, layer);
       });
 
+      // Handle edits (dragging points)
+      map.on(L.Draw.Event.EDITED, (e: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+        e.layers.eachLayer((layer: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+          updatePolygonData(L, layer);
+        });
+      });
+
+      function updatePolygonData(L_inst: any, layer: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+        const latlngs = layer.getLatLngs()[0];
+        const areaSqMeters = L_inst.GeometryUtil.geodesicArea(latlngs);
+        const areaHectares = areaSqMeters / 10000;
+        handlePolygonDrawn(areaHectares, layer.toGeoJSON());
+      }
+
       mapInstanceRef.current = map;
+      setTimeout(() => map.invalidateSize(), 500);
 
-      console.log("Leaflet initialized successfully");
-
-      // Force Leaflet to recalculate size after mount
-      setTimeout(() => {
-        console.log("Invalidating map size");
-        map.invalidateSize();
-      }, 500);
-      
-      // A second one for good measure (some browsers need a bit more time)
-      setTimeout(() => map.invalidateSize(), 1500);
+      // Auto-trigger search if initial data exists
+      if (initialSearch?.village || initialSearch?.district) {
+        performSearch(map, initialSearch.village || "", initialSearch.district || "", initialSearch.state || "Uttar Pradesh");
+      }
     }
 
-    initMap().catch(err => {
-      console.error("Leaflet initialization failed:", err);
-    });
+    initMap();
 
     return () => {
       if (mapInstanceRef.current) {
@@ -105,11 +127,76 @@ export default function MapDraw({ onPolygonDrawn }: MapDrawProps) {
     };
   }, [handlePolygonDrawn]);
 
+  async function performSearch(map: any, village: string, district: string, state: string) {
+    const q = `${village}, ${district}, ${state}, India`;
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=1`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        const { lat, lon } = data[0];
+        map.setView([parseFloat(lat), parseFloat(lon)], 16);
+      }
+    } catch (e) {
+      console.warn("Auto-search failed:", e);
+    }
+  }
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.village && !searchQuery.district) return;
+    
+    setIsSearching(true);
+    await performSearch(mapInstanceRef.current, searchQuery.village, searchQuery.district, searchQuery.state);
+    setIsSearching(false);
+  };
+
   return (
-    <div
-      ref={mapRef}
-      style={{ height: "420px", width: "100%" }}
-      className="rounded-xl border border-gray-200 overflow-hidden z-0"
-    />
+    <div className="space-y-4">
+      {/* Search Header */}
+      <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+        <input
+          type="text"
+          placeholder="State"
+          className="p-2 text-sm border rounded-lg outline-none focus:ring-1 focus:ring-primary"
+          value={searchQuery.state}
+          onChange={(e) => setSearchQuery({ ...searchQuery, state: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="District"
+          className="p-2 text-sm border rounded-lg outline-none focus:ring-1 focus:ring-primary"
+          value={searchQuery.district}
+          onChange={(e) => setSearchQuery({ ...searchQuery, district: e.target.value })}
+        />
+        <input
+          type="text"
+          placeholder="Village"
+          className="p-2 text-sm border rounded-lg outline-none focus:ring-1 focus:ring-primary"
+          value={searchQuery.village}
+          onChange={(e) => setSearchQuery({ ...searchQuery, village: e.target.value })}
+        />
+        <button
+          type="submit"
+          disabled={isSearching}
+          className="bg-primary text-accent p-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 hover:bg-emerald-900 transition-colors"
+        >
+          {isSearching ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
+          Find Location
+        </button>
+      </form>
+
+      <div className="relative">
+        <div
+          ref={mapRef}
+          style={{ height: "450px", width: "100%" }}
+          className="rounded-2xl border-2 border-emerald-50 shadow-inner overflow-hidden z-0"
+        />
+        
+        {/* Instructions overlay */}
+        <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur shadow-sm border border-gray-100 p-3 rounded-xl z-[1000] text-[10px] font-bold text-gray-500 uppercase tracking-widest pointer-events-none">
+          Use the toolbar to DRAW or EDIT points
+        </div>
+      </div>
+    </div>
   );
 }

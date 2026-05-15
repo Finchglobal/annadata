@@ -226,7 +226,14 @@ export default function IntakePage() {
         {step === 3 && (
           <div className="space-y-6">
             <p className="font-semibold mb-2">Draw your farm polygon on the map</p>
-            <MapDraw onPolygonDrawn={handlePolygonDrawn} />
+            <MapDraw 
+              onPolygonDrawn={handlePolygonDrawn} 
+              initialSearch={{
+                state: "Uttar Pradesh", // Defaulting to pilot state
+                district: formData.district,
+                village: formData.village
+              }}
+            />
             {formData.areaHectares > 0 && (
               <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-xl flex items-center justify-between">
                 <div>
