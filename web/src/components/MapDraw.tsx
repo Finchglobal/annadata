@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useCallback, useState } from "react";
 import { Search, Loader2 } from "lucide-react";
-import { FOCUS_DISTRICTS, INDIA_STATES } from "@/lib/indiaData";
+import { MOCK_LOCATIONS } from "@/lib/indiaData";
 
 interface MapDrawProps {
   onPolygonDrawn: (areaHectares: number, geojson: object) => void;
@@ -10,6 +10,7 @@ interface MapDrawProps {
     state?: string;
     district?: string;
     village?: string;
+    ward?: string;
   };
 }
 
@@ -22,6 +23,7 @@ export default function MapDraw({ onPolygonDrawn, initialSearch }: MapDrawProps)
     state: initialSearch?.state || "",
     district: initialSearch?.district || "",
     village: initialSearch?.village || "",
+    ward: initialSearch?.ward || "",
   });
   const [isSearching, setIsSearching] = useState(false);
   const [potentialReward, setPotentialReward] = useState<number | null>(null);
@@ -167,34 +169,50 @@ export default function MapDraw({ onPolygonDrawn, initialSearch }: MapDrawProps)
   return (
     <div className="space-y-4">
       {/* Search Header */}
-      <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+      <form onSubmit={handleSearch} className="grid grid-cols-2 sm:grid-cols-5 gap-2">
         <select
           className="p-2 text-sm border rounded-lg outline-none focus:ring-1 focus:ring-primary bg-white text-gray-800"
           value={searchQuery.state}
-          onChange={(e) => setSearchQuery({ ...searchQuery, state: e.target.value })}
+          onChange={(e) => setSearchQuery({ ...searchQuery, state: e.target.value, district: "", village: "", ward: "" })}
         >
           <option value="">Select State</option>
-          {INDIA_STATES.map((s) => (
+          {Object.keys(MOCK_LOCATIONS).map((s) => (
             <option key={s} value={s}>{s}</option>
           ))}
         </select>
         <select
           className="p-2 text-sm border rounded-lg outline-none focus:ring-1 focus:ring-primary bg-white text-gray-800"
           value={searchQuery.district}
-          onChange={(e) => setSearchQuery({ ...searchQuery, district: e.target.value })}
+          onChange={(e) => setSearchQuery({ ...searchQuery, district: e.target.value, village: "", ward: "" })}
+          disabled={!searchQuery.state}
         >
           <option value="">Select District</option>
-          {FOCUS_DISTRICTS.map((d) => (
+          {searchQuery.state && MOCK_LOCATIONS[searchQuery.state] && Object.keys(MOCK_LOCATIONS[searchQuery.state]).map((d) => (
             <option key={d} value={d}>{d}</option>
           ))}
         </select>
-        <input
-          type="text"
-          placeholder="Village"
-          className="p-2 text-sm border rounded-lg outline-none focus:ring-1 focus:ring-primary"
+        <select
+          className="p-2 text-sm border rounded-lg outline-none focus:ring-1 focus:ring-primary bg-white text-gray-800"
           value={searchQuery.village}
-          onChange={(e) => setSearchQuery({ ...searchQuery, village: e.target.value })}
-        />
+          onChange={(e) => setSearchQuery({ ...searchQuery, village: e.target.value, ward: "" })}
+          disabled={!searchQuery.district}
+        >
+          <option value="">Select Village</option>
+          {searchQuery.state && searchQuery.district && MOCK_LOCATIONS[searchQuery.state]?.[searchQuery.district] && Object.keys(MOCK_LOCATIONS[searchQuery.state][searchQuery.district]).map((v) => (
+            <option key={v} value={v}>{v}</option>
+          ))}
+        </select>
+        <select
+          className="p-2 text-sm border rounded-lg outline-none focus:ring-1 focus:ring-primary bg-white text-gray-800"
+          value={searchQuery.ward}
+          onChange={(e) => setSearchQuery({ ...searchQuery, ward: e.target.value })}
+          disabled={!searchQuery.village}
+        >
+          <option value="">Select Ward</option>
+          {searchQuery.state && searchQuery.district && searchQuery.village && MOCK_LOCATIONS[searchQuery.state]?.[searchQuery.district]?.[searchQuery.village] && MOCK_LOCATIONS[searchQuery.state][searchQuery.district][searchQuery.village].map((w) => (
+            <option key={w} value={w}>{w}</option>
+          ))}
+        </select>
         <button
           type="submit"
           disabled={isSearching}

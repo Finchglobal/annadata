@@ -25,3 +25,35 @@ export const FOCUS_DISTRICTS = [
   "Koppal", // Karnataka
   "Purulia" // West Bengal
 ].sort();
+
+export const MOCK_LOCATIONS: Record<string, Record<string, Record<string, string[]>>> = {
+  "Uttar Pradesh": {
+    "Banda": {
+      "Atarra": ["Ward 1", "Ward 2", "Ward 3"],
+      "Baberu": ["Ward 1", "Ward 2"],
+      "Naraini": ["Ward 1", "Ward 2", "Ward 3"],
+      "Tindwari": ["Ward 1", "Ward 2", "Ward 3", "Ward 4"]
+    },
+    "Chitrakoot": {
+      "Karwi": ["Ward 1", "Ward 2", "Ward 3"],
+      "Manikpur": ["Ward 1", "Ward 2"],
+      "Mau": ["Ward 1", "Ward 2"],
+      "Pahari": ["Ward 1", "Ward 2", "Ward 3"]
+    }
+  },
+  "Karnataka": {
+    "Koppal": {
+      "Gangavathi": ["Ward 1", "Ward 2"],
+      "Kushtagi": ["Ward 1", "Ward 2"],
+      "Yelburga": ["Ward 1", "Ward 2"]
+    }
+  },
+  "West Bengal": {
+    "Purulia": {
+      "Arsha": ["Ward 1", "Ward 2"],
+      "Baghmundi": ["Ward 1", "Ward 2", "Ward 3"],
+      "Balarampur": ["Ward 1", "Ward 2"],
+      "Jhalda": ["Ward 1", "Ward 2", "Ward 3"]
+    }
+  }
+};

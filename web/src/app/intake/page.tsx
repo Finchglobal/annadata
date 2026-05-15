@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { ArrowRight, ArrowLeft, Map as MapIcon, Sprout, Users, MapPin } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import { FOCUS_DISTRICTS } from "@/lib/indiaData";
+import { MOCK_LOCATIONS } from "@/lib/indiaData";
 
 const MapDraw = dynamic(() => import("@/components/MapDraw"), { ssr: false });
 
@@ -14,8 +14,10 @@ export default function IntakePage() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     fullName: "",
-    village: "",
+    state: "",
     district: "",
+    village: "",
+    ward: "",
     totalFamily: "",
     femaleMembers: "",
     unmarriedGirls: "",
@@ -138,29 +140,69 @@ export default function IntakePage() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-semibold mb-2">Village</label>
-                  <input
-                    type="text"
-                    name="village"
-                    value={formData.village}
-                    onChange={handleChange}
-                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
-                    placeholder="e.g. Atarra"
-                  />
+                  <label className="block font-semibold mb-2">State</label>
+                  <select
+                    name="state"
+                    value={formData.state}
+                    onChange={(e) => {
+                      setFormData({ ...formData, state: e.target.value, district: "", village: "", ward: "" });
+                    }}
+                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary outline-none bg-white"
+                  >
+                    <option value="">Select State</option>
+                    {Object.keys(MOCK_LOCATIONS).map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className="block font-semibold mb-2 flex items-center gap-1">
-                    Ward/Dist <MapPin size={14} className="text-gray-500" />
+                    District <MapPin size={14} className="text-gray-500" />
                   </label>
                   <select
                     name="district"
                     value={formData.district}
-                    onChange={handleChange}
+                    onChange={(e) => {
+                      setFormData({ ...formData, district: e.target.value, village: "", ward: "" });
+                    }}
                     className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary outline-none bg-white"
+                    disabled={!formData.state}
                   >
                     <option value="">Select District</option>
-                    {FOCUS_DISTRICTS.map((d) => (
+                    {formData.state && MOCK_LOCATIONS[formData.state] && Object.keys(MOCK_LOCATIONS[formData.state]).map((d) => (
                       <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block font-semibold mb-2">Village</label>
+                  <select
+                    name="village"
+                    value={formData.village}
+                    onChange={(e) => {
+                      setFormData({ ...formData, village: e.target.value, ward: "" });
+                    }}
+                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary outline-none bg-white"
+                    disabled={!formData.district}
+                  >
+                    <option value="">Select Village</option>
+                    {formData.state && formData.district && MOCK_LOCATIONS[formData.state]?.[formData.district] && Object.keys(MOCK_LOCATIONS[formData.state][formData.district]).map((v) => (
+                      <option key={v} value={v}>{v}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block font-semibold mb-2">Ward</label>
+                  <select
+                    name="ward"
+                    value={formData.ward}
+                    onChange={handleChange}
+                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary outline-none bg-white"
+                    disabled={!formData.village}
+                  >
+                    <option value="">Select Ward</option>
+                    {formData.state && formData.district && formData.village && MOCK_LOCATIONS[formData.state]?.[formData.district]?.[formData.village] && MOCK_LOCATIONS[formData.state][formData.district][formData.village].map((w) => (
+                      <option key={w} value={w}>{w}</option>
                     ))}
                   </select>
                 </div>
@@ -233,9 +275,10 @@ export default function IntakePage() {
             <MapDraw 
               onPolygonDrawn={handlePolygonDrawn} 
               initialSearch={{
-                state: "Uttar Pradesh", // Defaulting to pilot state
+                state: formData.state || "Uttar Pradesh",
                 district: formData.district,
-                village: formData.village
+                village: formData.village,
+                ward: formData.ward
               }}
             />
             {formData.areaHectares > 0 && (
