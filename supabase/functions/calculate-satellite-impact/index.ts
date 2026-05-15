@@ -187,10 +187,7 @@ async function computeNDVI(geometry: object, accessToken: string): Promise<numbe
             },
           },
           geometry: {
-            geometryValue: {
-              type: 'GeoJson',
-              value: geometry,
-            },
+            geometryValue: geometry,
           },
           scale: { constantValue: 10 },
           maxPixels: { constantValue: 1e9 },

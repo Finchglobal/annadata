@@ -1,206 +1,309 @@
 import Link from "next/link";
-import { Leaf, ArrowRight, Satellite, Users, ShieldCheck, TrendingUp, IndianRupee, Sprout } from "lucide-react";
+import { 
+  Leaf, ArrowRight, Satellite, Users, ShieldCheck, 
+  TrendingUp, IndianRupee, Sprout, Globe, Shield, 
+  CheckCircle2, BarChart3, Zap
+} from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background font-sans">
+    <div className="min-h-screen bg-[#fcfdfa] font-sans selection:bg-emerald-100 selection:text-emerald-900">
       {/* ── Navigation ── */}
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-primary/10 px-6 py-4">
-        <div className="max-w-6xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-primary rounded-lg">
-              <Leaf className="text-accent" size={20} />
+      <nav className="fixed top-0 w-full z-[100] bg-white/70 backdrop-blur-xl border-b border-emerald-50 px-6 py-4">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 bg-primary rounded-xl shadow-lg shadow-emerald-900/20">
+              <Leaf className="text-accent" size={22} />
             </div>
-            <span className="text-xl font-extrabold text-primary tracking-tight">Annadata</span>
-            <span className="hidden sm:inline text-xs font-semibold bg-accent text-primary px-2 py-0.5 rounded-full ml-1">Impact Credits</span>
+            <div className="flex flex-col">
+              <span className="text-xl font-black text-primary tracking-tighter leading-none">ANNADATA</span>
+              <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mt-0.5">Impact Credits</span>
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <Link href="/ward" className="hidden sm:block text-sm font-semibold text-primary/70 hover:text-primary transition-colors">
-              Ward Portal
-            </Link>
-            <Link href="/login" className="text-sm font-semibold text-primary hover:underline">
+          
+          <div className="hidden md:flex items-center gap-8 text-sm font-bold text-primary/60">
+            <Link href="#how-it-works" className="hover:text-primary transition-colors">Protocol</Link>
+            <Link href="#formula" className="hover:text-primary transition-colors">The Formula</Link>
+            <Link href="/ward" className="hover:text-primary transition-colors">Ward Portal</Link>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <Link href="/login" className="hidden sm:block text-sm font-bold text-primary hover:text-emerald-600 transition-colors">
               Login
             </Link>
-            <Link href="/signup" className="bg-primary text-accent px-4 py-2 rounded-full text-sm font-bold hover:bg-primary/90 transition-colors shadow-sm">
-              Join Pilot
+            <Link href="/signup" className="bg-primary text-accent px-6 py-2.5 rounded-full text-sm font-black hover:bg-emerald-900 transition-all hover:scale-105 active:scale-95 shadow-xl shadow-emerald-900/10">
+              Join the Pilot
             </Link>
           </div>
         </div>
       </nav>
 
-      {/* ── Hero ── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary via-emerald-800 to-primary pt-24 pb-32 px-6 text-center">
-        {/* Decorative circles */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-emerald-600/20 blur-3xl pointer-events-none" />
+      {/* ── Hero Section ── */}
+      <section className="relative pt-40 pb-32 px-6 overflow-hidden">
+        {/* Background Decorative Elements */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10">
+          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-emerald-100/50 blur-[120px] rounded-full" />
+          <div className="absolute bottom-0 right-0 w-[30%] h-[30%] bg-accent/30 blur-[100px] rounded-full" />
+        </div>
+
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col items-center text-center space-y-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs font-black uppercase tracking-widest animate-fade-in">
+              <Zap size={14} className="fill-emerald-700" /> Live Pilot Program · 150k Annadatas
+            </div>
+            
+            <h1 className="text-6xl md:text-8xl font-black text-primary tracking-tight leading-[0.9] max-w-5xl">
+              The Farmer Gets <br />
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-primary italic">Only 16% Value.</span>
+            </h1>
+            
+            <p className="text-xl md:text-2xl text-gray-600 max-w-2xl font-medium leading-relaxed">
+              We&apos;re bridging the 84% gap. Annadata Impact Credits (AIC) recognize social hardship and ecological stewardship—turning trust into traceable financial rewards.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-5 pt-4">
+              <Link
+                href="/signup"
+                className="group relative flex items-center justify-center gap-3 bg-primary text-accent px-10 py-5 rounded-2xl font-black text-lg hover:bg-emerald-900 transition-all shadow-2xl shadow-emerald-900/20 hover:-translate-y-1"
+              >
+                Start Intake Flow
+                <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link
+                href="/dashboard"
+                className="flex items-center justify-center gap-3 bg-white border-2 border-emerald-100 text-primary px-10 py-5 rounded-2xl font-black text-lg hover:bg-emerald-50 transition-all"
+              >
+                Explore Dashboard
+              </Link>
+            </div>
+
+            {/* Trusted By / Powered By */}
+            <div className="pt-20 flex flex-col items-center gap-6">
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">Powered by the SIR Protocol</span>
+              <div className="flex flex-wrap justify-center items-center gap-10 grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-700">
+                <div className="flex items-center gap-2 font-black text-xl italic"><Globe size={24}/> Sentinel-2</div>
+                <div className="flex items-center gap-2 font-black text-xl italic"><Shield size={24}/> PostGIS</div>
+                <div className="flex items-center gap-2 font-black text-xl italic text-emerald-700 underline underline-offset-8 decoration-4">SIR.FARM</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Stat Cards ── */}
+      <section className="px-6 py-12">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="bg-primary text-white p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                <IndianRupee size={120} />
+              </div>
+              <div className="text-accent font-black text-6xl mb-2">16%</div>
+              <div className="text-xl font-bold mb-4 italic text-emerald-100">Current Share</div>
+              <p className="text-emerald-50/60 text-sm leading-relaxed">The average Indian farmer receives less than 1/6th of the final market value of their produce. AIC recovers the remaining 84%.</p>
+            </div>
+            
+            <div className="bg-accent text-primary p-10 rounded-[2.5rem] shadow-xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                <Satellite size={120} />
+              </div>
+              <div className="text-primary font-black text-6xl mb-2">Live</div>
+              <div className="text-xl font-bold mb-4 italic text-emerald-900/60">Satellite Proof</div>
+              <p className="text-emerald-900/40 text-sm leading-relaxed">No self-declarations. Every credit is backed by 10m-resolution NDVI satellite imagery processed via Google Earth Engine.</p>
+            </div>
+
+            <div className="bg-emerald-50 text-emerald-900 p-10 rounded-[2.5rem] border border-emerald-100 shadow-sm relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-500">
+                <ShieldCheck size={120} />
+              </div>
+              <div className="text-emerald-600 font-black text-6xl mb-2">Trust</div>
+              <div className="text-xl font-bold mb-4 italic text-emerald-900/60">Panchayati Validation</div>
+              <p className="text-emerald-900/40 text-sm leading-relaxed">The human layer. Elected Ward Members digitally sign off on farmer identity, bridging the gap between tech and community.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── How it Works: The Protocol ── */}
+      <section id="how-it-works" className="py-32 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row gap-16 items-center">
+            <div className="flex-1 space-y-8">
+              <h2 className="text-5xl font-black text-primary leading-tight">
+                A Traceable Path to <br />
+                <span className="text-emerald-600">Absolute Rewards.</span>
+              </h2>
+              <p className="text-lg text-gray-600 font-medium">
+                We replaced vague percentages with verifiable impact multipliers. Every AIC point in your wallet is earned through three rigorous stages of truth.
+              </p>
+              
+              <div className="space-y-6">
+                {[
+                  { step: 1, title: "Social Identity Intake", desc: "Farmers provide family metrics—specifically female dependency and unmarried girls—to calculate the Social Premium multiplier (W_social).", icon: <Users /> },
+                  { step: 2, title: "Regen Satellite Audit", desc: "The platform queries Sentinel-2 datasets for the last 90 days. High vegetation scores (NDVI) yield a Regen Multiplier (W_regen) up to 1.5x.", icon: <Satellite /> },
+                  { step: 3, title: "Decentralized Ward Approval", desc: "Local Ward Members review submissions. Their digital verification unlocks the credit for payout/trading.", icon: <ShieldCheck /> },
+                ].map((item) => (
+                  <div key={item.step} className="flex gap-5 group">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center text-emerald-700 font-black shrink-0 group-hover:bg-primary group-hover:text-accent transition-colors">
+                      {item.step}
+                    </div>
+                    <div>
+                      <h4 className="font-black text-primary text-lg mb-1">{item.title}</h4>
+                      <p className="text-gray-500 text-sm">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="flex-1 w-full">
+              <div className="relative aspect-square bg-emerald-900 rounded-[3rem] p-10 shadow-2xl overflow-hidden group">
+                 {/* Visual placeholder for dashboard UI mockup */}
+                 <div className="absolute top-10 left-10 right-10 bottom-10 bg-white/10 rounded-3xl backdrop-blur-md border border-white/20 p-8">
+                    <div className="flex justify-between items-start mb-10">
+                       <div>
+                          <div className="text-[10px] text-accent font-black uppercase tracking-widest mb-1">Annadata Wallet</div>
+                          <div className="text-4xl font-black text-white italic">24,850 <span className="text-lg opacity-40">AIC</span></div>
+                       </div>
+                       <div className="p-3 bg-accent rounded-2xl text-primary"><IndianRupee /></div>
+                    </div>
+                    <div className="space-y-4">
+                       <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                          <div className="h-full w-[65%] bg-accent rounded-full animate-shimmer" />
+                       </div>
+                       <div className="flex justify-between text-[10px] font-bold text-white/40 uppercase tracking-widest">
+                          <span>16% Yield</span>
+                          <span>84% GAP RECOVERY</span>
+                       </div>
+                    </div>
+                    <div className="mt-12 grid grid-cols-2 gap-4">
+                       <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
+                          <div className="text-emerald-400 font-black text-xl">1.35x</div>
+                          <div className="text-[8px] text-white/40 uppercase font-black tracking-widest mt-1">W_regen</div>
+                       </div>
+                       <div className="bg-white/5 p-4 rounded-2xl border border-white/10">
+                          <div className="text-emerald-400 font-black text-xl">2.10x</div>
+                          <div className="text-[8px] text-white/40 uppercase font-black tracking-widest mt-1">W_social</div>
+                       </div>
+                    </div>
+                 </div>
+                 <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-accent/20 rounded-full blur-3xl" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Formula Breakout ── */}
+      <section id="formula" className="py-32 px-6 bg-[#0c1a15] text-white overflow-hidden relative">
+        <div className="absolute top-0 right-0 opacity-5 pointer-events-none">
+          <Globe size={800} />
+        </div>
         
-        <div className="relative max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 text-accent text-sm font-semibold mb-8">
-            <Satellite size={14} /> Satellite-Verified Impact Credits
-          </div>
+        <div className="max-w-5xl mx-auto text-center relative z-10">
+          <span className="text-accent text-[10px] font-black uppercase tracking-[0.4em] mb-4 block">The Mathematical Truth</span>
+          <h2 className="text-5xl md:text-7xl font-black mb-16 tracking-tighter">
+            We Value the <br />
+            <span className="italic text-emerald-400 underline decoration-emerald-800 underline-offset-[12px]">Unrecognized.</span>
+          </h2>
           
-          <h1 className="text-5xl sm:text-7xl font-extrabold text-white leading-tight mb-6 tracking-tight">
-            The Farmer Gets{" "}
-            <span className="text-accent">Only 16%.</span>
-            <br />We&apos;re Changing That.
-          </h1>
-          
-          <p className="text-lg sm:text-xl text-accent/80 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Annadata Impact Credits (AIC) is a financial instrument that recognizes the unrecognized. 
-            Hardship, social contribution, and environmental stewardship of India&apos;s 150,000 Annadatas — 
-            verified by satellite and rewarded in absolute INR.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/signup"
-              className="flex items-center justify-center gap-2 bg-accent text-primary px-8 py-4 rounded-full font-extrabold text-base hover:bg-white transition-colors shadow-xl"
-            >
-              Start Your AIC Intake <ArrowRight size={18} />
-            </Link>
-            <Link
-              href="/dashboard"
-              className="flex items-center justify-center gap-2 bg-white/10 border border-white/30 text-white px-8 py-4 rounded-full font-semibold text-base hover:bg-white/20 transition-colors"
-            >
-              View Trust Dashboard
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Stats Bar ── */}
-      <section className="bg-accent border-y border-primary/10 py-8 px-6">
-        <div className="max-w-5xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
-          {[
-            { value: "150,000", label: "Pilot Farmers", icon: <Users size={20} /> },
-            { value: "16%", label: "Current Value Share", icon: <TrendingUp size={20} /> },
-            { value: "84%", label: "Value Gap to Bridge", icon: <IndianRupee size={20} /> },
-            { value: "Satellite", label: "Verified via NDVI/NDWI", icon: <Satellite size={20} /> },
-          ].map((stat) => (
-            <div key={stat.label} className="flex flex-col items-center gap-1">
-              <div className="text-primary/50 mb-1">{stat.icon}</div>
-              <div className="text-3xl font-extrabold text-primary">{stat.value}</div>
-              <div className="text-xs font-semibold text-primary/60 uppercase tracking-wider">{stat.label}</div>
+          <div className="p-1 sm:p-2 bg-white/5 backdrop-blur-2xl rounded-[3rem] border border-white/10 mb-20">
+            <div className="bg-emerald-950/50 rounded-[2.8rem] py-20 px-8">
+              <div className="text-3xl md:text-5xl font-black tracking-tighter mb-4 text-accent">
+                AIC = (Area × [W<sub>s</sub> + W<sub>r</sub>]) + (Yield × 0.84)
+              </div>
+              <p className="text-emerald-200/40 font-mono text-sm uppercase tracking-widest">Traceable Multiplier Algorithm v1.2</p>
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── How It Works ── */}
-      <section className="py-24 px-6 bg-white">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-extrabold text-primary mb-4">How AIC Works</h2>
-            <p className="text-gray-600 max-w-xl mx-auto">A transparent, auditable process from farm to wallet.</p>
           </div>
-          <div className="grid sm:grid-cols-3 gap-8">
+
+          <div className="grid md:grid-cols-3 gap-8 text-left">
             {[
-              {
-                step: "01",
-                icon: <Users size={28} />,
-                title: "Farmer Intake",
-                desc: "Farmers submit their family composition, yearly yield, and draw their farm boundary on the map. No paperwork.",
-              },
-              {
-                step: "02",
-                icon: <Satellite size={28} />,
-                title: "Satellite Verification",
-                desc: "Google Earth Engine analyses the farm polygon using NDVI & NDWI scores from Sentinel-2 to verify regenerative practices.",
-              },
-              {
-                step: "03",
-                icon: <ShieldCheck size={28} />,
-                title: "Ward Validation",
-                desc: "The elected Ward Member digitally validates the farmer's identity and hardship as a human layer of trust.",
-              },
-            ].map((item) => (
-              <div key={item.step} className="relative bg-gradient-to-br from-gray-50 to-white p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-                <div className="text-5xl font-extrabold text-primary/10 absolute top-6 right-6">{item.step}</div>
-                <div className="p-3 bg-accent rounded-xl w-fit text-primary mb-4">{item.icon}</div>
-                <h3 className="text-xl font-bold text-primary mb-2">{item.title}</h3>
-                <p className="text-gray-600 text-sm leading-relaxed">{item.desc}</p>
+              { title: "Social Premium (W_s)", value: "Up to 3.0x", desc: "Incentivizing gender equality and social support systems directly." },
+              { title: "Regen Score (W_r)", value: "Satellite Fed", desc: "Dynamic multiplier based on active photosynthesis and water retention." },
+              { title: "Value Gap Factor", value: "0.84 Absolute", desc: "Specifically designed to claw back the 84% supply chain value leak." },
+            ].map((box) => (
+              <div key={box.title} className="bg-white/5 border border-white/10 p-8 rounded-3xl hover:bg-white/10 transition-colors">
+                <h4 className="font-black text-emerald-400 text-sm uppercase tracking-widest mb-4">{box.title}</h4>
+                <div className="text-3xl font-black mb-2">{box.value}</div>
+                <p className="text-white/40 text-sm leading-relaxed">{box.desc}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Formula Section ── */}
-      <section className="py-24 px-6 bg-gradient-to-br from-primary to-emerald-800 text-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl font-extrabold text-white mb-4">The AIC Formula</h2>
-          <p className="text-accent/80 mb-12 max-w-xl mx-auto">
-            Not a percentage — an absolute reward. Every rupee is traceable.
-          </p>
-          <div className="bg-white/10 backdrop-blur border border-white/20 rounded-3xl p-8 sm:p-12 inline-block text-left">
-            <div className="font-mono text-2xl sm:text-3xl font-bold text-accent text-center mb-8">
-              AIC = (Area × [W<sub>social</sub> + W<sub>regen</sub>]) + (Yield × Gap_Factor)
-            </div>
-            <div className="grid sm:grid-cols-3 gap-6 text-sm">
-              {[
-                { term: "W_social", color: "bg-blue-400/20 border-blue-300/40", desc: "Weighted multiplier for female dependency & social hardship. Higher the dependency, higher the credit." },
-                { term: "W_regen", color: "bg-emerald-400/20 border-emerald-300/40", desc: "Environmental score from Google Earth Engine NDVI/NDWI. Greener the farm, higher the reward." },
-                { term: "Gap_Factor", color: "bg-orange-400/20 border-orange-300/40", desc: "The 0.84 coefficient designed to recover the 84% value currently lost in the supply chain." },
-              ].map((item) => (
-                <div key={item.term} className={`border rounded-xl p-4 ${item.color}`}>
-                  <div className="font-mono font-bold text-white text-base mb-2">{item.term}</div>
-                  <div className="text-white/70 text-xs leading-relaxed">{item.desc}</div>
-                </div>
-              ))}
-            </div>
-          </div>
+      {/* ── Trust Icons / Badges ── */}
+      <section className="py-32 px-6">
+        <div className="max-w-6xl mx-auto flex flex-wrap justify-center gap-16 md:gap-32 items-center opacity-30 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-1000">
+           <div className="flex items-center gap-3 font-black text-2xl tracking-tighter"><BarChart3 /> Real-Time</div>
+           <div className="flex items-center gap-3 font-black text-2xl tracking-tighter"><ShieldCheck /> Auditable</div>
+           <div className="flex items-center gap-3 font-black text-2xl tracking-tighter"><CheckCircle2 /> Decentralized</div>
+           <div className="flex items-center gap-3 font-black text-2xl tracking-tighter"><Sprout /> Regenerative</div>
         </div>
       </section>
 
-      {/* ── Social Proof / Trust ── */}
-      <section className="py-24 px-6 bg-white">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-extrabold text-primary mb-4">Built for Trust</h2>
-            <p className="text-gray-600 max-w-xl mx-auto">Every layer of the platform is designed for auditability.</p>
-          </div>
-          <div className="grid sm:grid-cols-2 gap-6">
-            {[
-              { icon: <ShieldCheck />, title: "Panchayati Raj Protocol", desc: "Elected Ward Members act as the final human layer of trust, verifying farmer identity before credits are issued." },
-              { icon: <Satellite />, title: "Satellite Intelligence", desc: "NDVI & NDWI analysis from Copernicus Sentinel-2 imagery ensures environmental claims are verified, not self-declared." },
-              { icon: <Sprout />, title: "PostGIS Land Registry", desc: "Farm boundaries stored as verifiable geospatial polygons in a tamper-resistant PostGIS database." },
-              { icon: <IndianRupee />, title: "Absolute Rewards, Not Percentages", desc: "Farmers receive concrete INR values tied to their AIC score, not vague promises or percentage calculations." },
-            ].map((item) => (
-              <div key={item.title} className="flex gap-4 p-6 rounded-2xl border border-gray-100 bg-gray-50 hover:bg-accent/30 transition-colors">
-                <div className="p-3 bg-primary rounded-xl text-accent h-fit shrink-0">{item.icon}</div>
-                <div>
-                  <h3 className="font-bold text-primary mb-1">{item.title}</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">{item.desc}</p>
-                </div>
+      {/* ── Final CTA ── */}
+      <section className="px-6 pb-40">
+        <div className="max-w-6xl mx-auto bg-accent rounded-[4rem] p-16 md:p-32 text-center relative overflow-hidden shadow-2xl">
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/20 to-transparent pointer-events-none" />
+          <div className="relative z-10 space-y-10">
+            <h2 className="text-5xl md:text-7xl font-black text-primary tracking-tighter leading-none">
+              Ready to Claim <br />
+              <span className="italic">Your True Impact?</span>
+            </h2>
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+              <Link
+                href="/signup"
+                className="bg-primary text-accent px-12 py-6 rounded-2xl font-black text-xl hover:bg-emerald-900 transition-all hover:scale-105 shadow-2xl shadow-emerald-900/40"
+              >
+                Join the Pilot Now
+              </Link>
+              <div className="text-primary/40 font-bold uppercase tracking-widest text-xs">
+                 No Paperwork · 5 Minute Setup
               </div>
-            ))}
+            </div>
           </div>
-        </div>
-      </section>
-
-      {/* ── CTA ── */}
-      <section className="py-24 px-6 bg-accent">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-4xl font-extrabold text-primary mb-4">Ready to Claim Your True Value?</h2>
-          <p className="text-primary/70 mb-8 text-lg">
-            Join the pilot. Map your farm. See your Annadata Wallet grow.
-          </p>
-          <Link
-            href="/signup"
-            className="inline-flex items-center gap-2 bg-primary text-accent px-10 py-4 rounded-full font-extrabold text-base hover:bg-primary/90 transition-colors shadow-xl"
-          >
-            Start Intake <ArrowRight size={18} />
-          </Link>
         </div>
       </section>
 
       {/* ── Footer ── */}
-      <footer className="bg-primary text-accent/60 py-8 px-6 text-center text-sm">
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <Leaf size={14} className="text-accent" />
-          <span className="font-bold text-accent">Annadata Impact Credits</span>
+      <footer className="bg-white py-20 px-6 border-t border-emerald-50">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-12">
+          <div className="col-span-2">
+            <div className="flex items-center gap-2 mb-6">
+              <div className="p-1.5 bg-primary rounded-lg">
+                <Leaf className="text-accent" size={18} />
+              </div>
+              <span className="text-xl font-black text-primary tracking-tighter">ANNADATA</span>
+            </div>
+            <p className="text-gray-400 max-w-sm text-sm leading-relaxed">
+              Empowering India&apos;s 150,000 Annadatas by bridging the agricultural value gap through satellite verification and human trust protocols.
+            </p>
+          </div>
+          <div className="space-y-4">
+            <h5 className="font-black text-primary text-xs uppercase tracking-widest">Protocol</h5>
+            <div className="flex flex-col gap-3 text-sm text-gray-500 font-bold">
+               <Link href="/ward">Ward Member Login</Link>
+               <Link href="/signup">Farmer Intake</Link>
+               <Link href="/dashboard">Trust Dashboard</Link>
+            </div>
+          </div>
+          <div className="space-y-4 text-right md:text-left">
+            <h5 className="font-black text-primary text-xs uppercase tracking-widest">Contact</h5>
+            <div className="flex flex-col gap-3 text-sm text-gray-500 font-bold">
+               <a href="mailto:impact@sir.farm">impact@sir.farm</a>
+               <span>Uttar Pradesh, India</span>
+            </div>
+          </div>
         </div>
-        <p>Authorized by SIR (Social Impact Rewards) & sir.farm Initiative</p>
-        <p className="mt-1">Empowering 150,000 Annadatas through Traceable Impact.</p>
+        <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-emerald-50 flex flex-col md:flex-row justify-between items-center gap-6">
+           <div className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">© 2026 SIR Protocol. Authorized by Social Impact Rewards.</div>
+           <div className="flex gap-8 text-[10px] font-bold text-emerald-600 uppercase tracking-widest">
+              <Link href="#">Privacy</Link>
+              <Link href="#">Terms</Link>
+              <Link href="#">Impact Methodology</Link>
+           </div>
+        </div>
       </footer>
     </div>
   );
