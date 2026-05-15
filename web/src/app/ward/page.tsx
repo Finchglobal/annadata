@@ -153,19 +153,19 @@ export default function WardPortalPage() {
             </div>
           </div>
           <h1 className="text-3xl font-black text-primary tracking-tighter mb-1 italic">Multi-Ward Access</h1>
-          <p className="text-gray-400 font-bold uppercase tracking-widest text-[10px] mb-10">Secured Ward Member Portal</p>
+          <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] mb-10">Secured Ward Member Portal</p>
 
           {authError && <div className="bg-red-50 text-red-600 p-4 rounded-xl mb-6 text-xs font-bold border border-red-100">{authError}</div>}
 
           <form onSubmit={handleLogin} className="space-y-5 text-left">
             <div>
-              <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5 ml-1">Official ID (Email)</label>
+              <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1.5 ml-1">Official ID (Email)</label>
               <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)}
                 className="w-full p-4 border-2 border-emerald-50 rounded-2xl focus:ring-2 focus:ring-primary outline-none font-medium text-sm transition-all"
                 placeholder="wardmember@panchayat.gov.in" />
             </div>
             <div>
-              <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5 ml-1">Access Key</label>
+              <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1.5 ml-1">Access Key</label>
               <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)}
                 className="w-full p-4 border-2 border-emerald-50 rounded-2xl focus:ring-2 focus:ring-primary outline-none font-medium text-sm transition-all"
                 placeholder="••••••••" />
@@ -229,7 +229,7 @@ export default function WardPortalPage() {
         <div className="flex items-center justify-between">
           <div>
              <h2 className="text-3xl font-black text-primary tracking-tighter">Queue: {selectedWard?.district}, Ward {selectedWard?.ward_number}</h2>
-             <p className="text-sm text-gray-400 font-medium mt-1 italic">Showing farmers joined in this specific ward.</p>
+             <p className="text-sm text-gray-500 font-medium mt-1 italic">Showing farmers joined in this specific ward.</p>
           </div>
           <div className="text-xs font-black text-emerald-700 bg-emerald-50 px-4 py-2 rounded-full border border-emerald-100 uppercase tracking-widest">
             {farmers.filter(f => !f.is_verified).length} pending
@@ -250,7 +250,7 @@ export default function WardPortalPage() {
                <Logo size={48} className="text-emerald-200" />
             </div>
             <h3 className="text-xl font-bold text-primary mb-2 italic">No Farmers in Ward {selectedWard?.ward_number}</h3>
-            <p className="text-gray-400 max-w-xs mx-auto text-sm">No submissions detected for this jurisdiction yet.</p>
+            <p className="text-gray-500 max-w-xs mx-auto text-sm">No submissions detected for this jurisdiction yet.</p>
           </div>
         )}
 
@@ -269,7 +269,7 @@ export default function WardPortalPage() {
                   </div>
                   <div>
                     <div className="font-black text-2xl text-primary tracking-tight italic">{farmer.full_name || "Unnamed Farmer"}</div>
-                    <div className="flex items-center gap-2 text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">
+                    <div className="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-widest mt-1">
                        <MapPin size={12} /> {farmer.village || "—"} · {farmer.district || "—"}
                     </div>
                   </div>
@@ -302,7 +302,7 @@ export default function WardPortalPage() {
                   { label: "Reported Yield", value: `₹${farmer.yearly_yield?.toLocaleString()}` },
                 ].map((d) => (
                   <div key={d.label} className="bg-[#f8faf5] border border-emerald-50 rounded-3xl p-5 group hover:bg-white hover:border-emerald-200 transition-all">
-                    <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{d.label}</div>
+                    <div className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-1">{d.label}</div>
                     <div className="text-xl font-black text-primary">{d.value}</div>
                   </div>
                 ))}

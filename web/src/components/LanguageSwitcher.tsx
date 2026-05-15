@@ -42,7 +42,7 @@ export default function LanguageSwitcher() {
                 }`}
               >
                 <span>{lng.native}</span>
-                <span className="text-[10px] uppercase tracking-widest text-gray-400">{lng.code}</span>
+                <span className="text-[10px] uppercase tracking-widest text-gray-500">{lng.code}</span>
               </button>
             ))}
           </div>

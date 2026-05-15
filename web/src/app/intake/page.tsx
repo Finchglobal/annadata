@@ -46,7 +46,7 @@ export default function IntakePage() {
     setStep((s) => s - 1);
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -149,16 +149,20 @@ export default function IntakePage() {
                 </div>
                 <div>
                   <label className="block font-semibold mb-2 flex items-center gap-1">
-                    Ward/Dist <MapPin size={14} className="text-gray-400" />
+                    Ward/Dist <MapPin size={14} className="text-gray-500" />
                   </label>
-                  <input
-                    type="text"
+                  <select
                     name="district"
                     value={formData.district}
                     onChange={handleChange}
-                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary outline-none"
-                    placeholder="e.g. 12"
-                  />
+                    className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-primary outline-none bg-white"
+                  >
+                    <option value="">Select</option>
+                    <option value="Banda">Banda</option>
+                    <option value="Chitrakoot">Chitrakoot</option>
+                    <option value="Koppal">Koppal</option>
+                    <option value="Purulia">Purulia</option>
+                  </select>
                 </div>
               </div>
             </div>
@@ -167,7 +171,7 @@ export default function IntakePage() {
 
             <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-bold uppercase text-gray-400 mb-1">Total Family</label>
+                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Total Family</label>
                 <input
                   type="number"
                   name="totalFamily"
@@ -178,7 +182,7 @@ export default function IntakePage() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold uppercase text-gray-400 mb-1">Females</label>
+                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Females</label>
                 <input
                   type="number"
                   name="femaleMembers"
@@ -189,7 +193,7 @@ export default function IntakePage() {
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold uppercase text-gray-400 mb-1">Girls (Unm.)</label>
+                <label className="block text-xs font-bold uppercase text-gray-500 mb-1">Girls (Unm.)</label>
                 <input
                   type="number"
                   name="unmarriedGirls"
@@ -209,7 +213,7 @@ export default function IntakePage() {
               <label className="block font-semibold mb-2">Yearly Yield (Absolute INR)</label>
               <p className="text-sm text-gray-500 mb-2">The total value you received for your crops this year.</p>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">₹</span>
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-bold">₹</span>
                 <input
                   type="number"
                   name="yearlyYield"

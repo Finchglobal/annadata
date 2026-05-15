@@ -127,7 +127,7 @@ export default function AdminPortal() {
             </div>
             <div>
               <h1 className="text-3xl font-black text-primary tracking-tighter">Super Admin Control</h1>
-              <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mt-1">Onboarding & Governance</p>
+              <p className="text-sm font-bold text-gray-500 uppercase tracking-widest mt-1">Onboarding & Governance</p>
             </div>
           </div>
           <button onClick={() => router.push("/")} className="text-sm font-bold text-primary hover:underline">Exit Admin</button>
@@ -154,7 +154,7 @@ export default function AdminPortal() {
                     <div className="flex items-center justify-between p-4">
                       <div>
                         <div className="font-bold text-primary">{displayName}</div>
-                        <div className="text-[10px] font-black uppercase tracking-widest text-gray-400">{p.role}</div>
+                        <div className="text-[10px] font-black uppercase tracking-widest text-gray-500">{p.role}</div>
                       </div>
                       <div className="flex items-center gap-2">
                         {p.role === "farmer" && (
@@ -188,15 +188,15 @@ export default function AdminPortal() {
                         {fData ? (
                           <div className="grid grid-cols-2 gap-4 text-xs">
                             <div>
-                              <span className="text-gray-400 font-bold uppercase tracking-wider block mb-1">Location</span>
+                              <span className="text-gray-500 font-bold uppercase tracking-wider block mb-1">Location</span>
                               <span className="font-medium text-gray-800">{fData.village}, {fData.district}</span>
                             </div>
                             <div>
-                              <span className="text-gray-400 font-bold uppercase tracking-wider block mb-1">Yearly Yield</span>
+                              <span className="text-gray-500 font-bold uppercase tracking-wider block mb-1">Yearly Yield</span>
                               <span className="font-medium text-gray-800">₹{fData.yearly_yield?.toLocaleString() || 0}</span>
                             </div>
                             <div>
-                              <span className="text-gray-400 font-bold uppercase tracking-wider block mb-1">Family</span>
+                              <span className="text-gray-500 font-bold uppercase tracking-wider block mb-1">Family</span>
                               <span className="font-medium text-gray-800">{fData.total_family} Members ({fData.female_members} F, {fData.unmarried_girls} UG)</span>
                             </div>
                           </div>

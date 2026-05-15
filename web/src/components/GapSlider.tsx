@@ -20,7 +20,7 @@ export default function GapSlider() {
       </div>
 
       <div className="relative mb-16">
-        <label className="block text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">
+        <label className="block text-sm font-bold text-gray-500 uppercase tracking-widest mb-4">
           Final Consumer Price: <span className="text-primary text-xl">₹{sliderValue}</span>
         </label>
         <input

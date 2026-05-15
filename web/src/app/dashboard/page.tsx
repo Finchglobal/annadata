@@ -218,11 +218,11 @@ export default function DashboardPage() {
             <div className={`p-5 rounded-2xl border-2 transition-all ${currentTier >= 1 ? 'border-primary/20 bg-primary/5' : 'border-gray-100 bg-gray-50'}`}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black ${currentTier >= 1 ? 'bg-primary text-accent' : 'bg-gray-200 text-gray-400'}`}>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black ${currentTier >= 1 ? 'bg-primary text-accent' : 'bg-gray-200 text-gray-500'}`}>
                     {currentTier > 1 ? <CheckCircle2 size={20} /> : '1'}
                   </div>
                   <div>
-                    <h4 className={`font-black ${currentTier >= 1 ? 'text-primary' : 'text-gray-400'}`}>Genesis</h4>
+                    <h4 className={`font-black ${currentTier >= 1 ? 'text-primary' : 'text-gray-500'}`}>Genesis</h4>
                     <p className="text-sm font-semibold text-gray-500">Map & UPI Onboarding</p>
                   </div>
                 </div>
@@ -240,11 +240,11 @@ export default function DashboardPage() {
             <div className={`p-5 rounded-2xl border-2 transition-all ${currentTier >= 2 ? 'border-primary/20 bg-primary/5' : currentTier === 1 ? 'border-accent bg-white' : 'border-gray-100 bg-gray-50'}`}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black ${currentTier >= 2 ? 'bg-primary text-accent' : currentTier === 1 ? 'bg-accent text-primary' : 'bg-gray-200 text-gray-400'}`}>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black ${currentTier >= 2 ? 'bg-primary text-accent' : currentTier === 1 ? 'bg-accent text-primary' : 'bg-gray-200 text-gray-500'}`}>
                     {currentTier > 2 ? <CheckCircle2 size={20} /> : currentTier === 1 ? '2' : <Lock size={16} />}
                   </div>
                   <div>
-                    <h4 className={`font-black ${currentTier >= 2 ? 'text-primary' : currentTier === 1 ? 'text-primary' : 'text-gray-400'}`}>Resilience</h4>
+                    <h4 className={`font-black ${currentTier >= 2 ? 'text-primary' : currentTier === 1 ? 'text-primary' : 'text-gray-500'}`}>Resilience</h4>
                     <p className="text-sm font-semibold text-gray-500">Social Data & Family Pulse</p>
                   </div>
                 </div>
@@ -262,11 +262,11 @@ export default function DashboardPage() {
             <div className={`p-5 rounded-2xl border-2 transition-all ${currentTier >= 3 ? 'border-primary/20 bg-primary/5' : currentTier === 2 ? 'border-accent bg-white' : 'border-gray-100 bg-gray-50'}`}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black ${currentTier >= 3 ? 'bg-primary text-accent' : currentTier === 2 ? 'bg-accent text-primary' : 'bg-gray-200 text-gray-400'}`}>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black ${currentTier >= 3 ? 'bg-primary text-accent' : currentTier === 2 ? 'bg-accent text-primary' : 'bg-gray-200 text-gray-500'}`}>
                     {currentTier >= 3 ? <CheckCircle2 size={20} /> : currentTier === 2 ? '3' : <Lock size={16} />}
                   </div>
                   <div>
-                    <h4 className={`font-black ${currentTier >= 3 ? 'text-primary' : currentTier === 2 ? 'text-primary' : 'text-gray-400'}`}>Verified</h4>
+                    <h4 className={`font-black ${currentTier >= 3 ? 'text-primary' : currentTier === 2 ? 'text-primary' : 'text-gray-500'}`}>Verified</h4>
                     <p className="text-sm font-semibold text-gray-500">Agri-Log & Yield Data</p>
                   </div>
                 </div>
@@ -289,19 +289,19 @@ export default function DashboardPage() {
           </h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             <div className="bg-gray-50 p-5 rounded-2xl">
-              <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Farm Area</div>
+              <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Farm Area</div>
               <div className="text-2xl font-black text-primary">{areaHectares > 0 ? `${areaHectares.toFixed(2)} ha` : "—"}</div>
             </div>
             <div className="bg-gray-50 p-5 rounded-2xl">
-              <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Yearly Yield</div>
+              <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Yearly Yield</div>
               <div className="text-2xl font-black text-primary">{farmer.yearly_yield > 0 ? `₹${farmer.yearly_yield.toLocaleString()}` : "—"}</div>
             </div>
             <div className="bg-gray-50 p-5 rounded-2xl">
-              <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">NDVI Score</div>
+              <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">NDVI Score</div>
               <div className="text-2xl font-black text-primary">{ndviScore > 0 ? ndviScore.toFixed(2) : "—"}</div>
             </div>
             <div className="bg-gray-50 p-5 rounded-2xl">
-              <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Female Members</div>
+              <div className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Female Members</div>
               <div className="text-2xl font-black text-primary">{farmer.female_members > 0 ? farmer.female_members : "—"}</div>
             </div>
           </div>

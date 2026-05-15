@@ -100,7 +100,7 @@ export default function LoginPage() {
             <Logo className="text-accent" size={36} />
           </div>
           <h1 className="text-3xl font-black text-primary tracking-tighter">Annadata AIC</h1>
-          <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mt-1">Impact Credit Platform · India</p>
+          <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mt-1">Impact Credit Platform · India</p>
         </div>
 
         <div className="bg-white p-10 rounded-[2.5rem] shadow-2xl shadow-emerald-900/10 border border-emerald-50/80">
@@ -108,7 +108,7 @@ export default function LoginPage() {
           {step === "email" && (
             <>
               <h2 className="text-2xl font-black text-primary tracking-tight mb-1">Welcome</h2>
-              <p className="text-sm text-gray-400 mb-8">Enter your email — we&apos;ll send a one-time code. Works for everyone: farmers, ward members &amp; admins.</p>
+              <p className="text-sm text-gray-500 mb-8">Enter your email — we&apos;ll send a one-time code. Works for everyone: farmers, ward members &amp; admins.</p>
 
               {error && (
                 <div className="bg-red-50 border border-red-100 text-red-600 p-4 rounded-2xl mb-5 text-xs font-bold">
@@ -139,7 +139,7 @@ export default function LoginPage() {
 
               <form onSubmit={handleSendOtp} className="space-y-4">
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5 ml-1">Email Address</label>
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1.5 ml-1">Email Address</label>
                   <div className="relative">
                     <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" />
                     <input
@@ -167,7 +167,7 @@ export default function LoginPage() {
 
           {step === "otp" && (
             <>
-              <button onClick={() => { setStep("email"); setOtp(""); setError(null); }} className="text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-primary mb-6 flex items-center gap-1">
+              <button onClick={() => { setStep("email"); setOtp(""); setError(null); }} className="text-[10px] font-black uppercase tracking-widest text-gray-500 hover:text-primary mb-6 flex items-center gap-1">
                 ← Back
               </button>
 
@@ -177,7 +177,7 @@ export default function LoginPage() {
                 </div>
               </div>
               <h2 className="text-2xl font-black text-primary tracking-tight mb-1 text-center">Check your email</h2>
-              <p className="text-sm text-gray-400 mb-2 text-center">We sent a 6-digit code to</p>
+              <p className="text-sm text-gray-500 mb-2 text-center">We sent a 6-digit code to</p>
               <p className="text-sm font-black text-primary text-center mb-8">{email}</p>
 
               {error && (
@@ -188,7 +188,7 @@ export default function LoginPage() {
 
               <form onSubmit={handleVerifyOtp} className="space-y-4">
                 <div>
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1.5 ml-1 text-center">6-Digit OTP Code</label>
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1.5 ml-1 text-center">6-Digit OTP Code</label>
                   <input
                     type="text"
                     required
@@ -208,7 +208,7 @@ export default function LoginPage() {
                 </button>
               </form>
 
-              <p className="text-center text-xs text-gray-400 mt-5">
+              <p className="text-center text-xs text-gray-500 mt-5">
                 Didn&apos;t receive it?{" "}
                 <button onClick={() => handleSendOtp({ preventDefault: () => {} } as React.FormEvent)} className="text-primary font-black hover:underline">
                   Resend code
@@ -219,7 +219,7 @@ export default function LoginPage() {
         </div>
 
         {/* Trust badge */}
-        <div className="flex items-center justify-center gap-2 mt-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+        <div className="flex items-center justify-center gap-2 mt-6 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
           <ShieldCheck size={12} className="text-emerald-400" />
           Passwordless · Panchayati Raj Trust Layer
         </div>

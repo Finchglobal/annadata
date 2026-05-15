@@ -87,7 +87,7 @@ export default function Home() {
 
             {/* Trusted By / Powered By */}
             <div className="pt-20 flex flex-col items-center gap-6">
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">Powered by the SIR Protocol</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Powered by the SIR Protocol</span>
               <div className="flex flex-wrap justify-center items-center gap-10 grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-700">
                 <div className="flex items-center gap-2 font-black text-xl italic"><Globe size={24}/> Sentinel-2</div>
                 <div className="flex items-center gap-2 font-black text-xl italic"><Shield size={24}/> PostGIS</div>
@@ -284,7 +284,7 @@ export default function Home() {
               </div>
               <span className="text-xl font-black text-primary tracking-tighter">ANNADATA</span>
             </div>
-            <p className="text-gray-400 max-w-sm text-sm leading-relaxed">
+            <p className="text-gray-500 max-w-sm text-sm leading-relaxed">
               Empowering India&apos;s 150,000 Annadatas by bridging the agricultural value gap through satellite verification and human trust protocols.
             </p>
           </div>

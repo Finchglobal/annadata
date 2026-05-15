@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useCallback, useState } from "react";
 import { Search, Loader2 } from "lucide-react";
-import * as turf from "@turf/turf";
 
 interface MapDrawProps {
   onPolygonDrawn: (areaHectares: number, geojson: object) => void;
@@ -108,14 +107,8 @@ export default function MapDraw({ onPolygonDrawn, initialSearch }: MapDrawProps)
         const areaSqMeters = L_inst.GeometryUtil.geodesicArea(latlngs);
         const areaHectares = areaSqMeters / 10000;
         
-        // Smoothing / magnetic behavior approximation using turf
-        let geojson = layer.toGeoJSON();
-        try {
-          // Simplify the polygon to remove redundant points and smooth it
-          geojson = turf.simplify(geojson, { tolerance: 0.0001, highQuality: false, mutate: true });
-        } catch(e) {
-          console.warn("Turf simplify failed", e);
-        }
+        // Pass directly without turf mutation to avoid breaking leaflet-draw
+        const geojson = layer.toGeoJSON();
 
         // Potential reward calc (Base: 10000 INR per AIC approx)
         // Assume base multiplier of 1.0 for projection
@@ -173,20 +166,28 @@ export default function MapDraw({ onPolygonDrawn, initialSearch }: MapDrawProps)
     <div className="space-y-4">
       {/* Search Header */}
       <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-4 gap-2">
-        <input
-          type="text"
-          placeholder="State"
-          className="p-2 text-sm border rounded-lg outline-none focus:ring-1 focus:ring-primary"
+        <select
+          className="p-2 text-sm border rounded-lg outline-none focus:ring-1 focus:ring-primary bg-white text-gray-800"
           value={searchQuery.state}
           onChange={(e) => setSearchQuery({ ...searchQuery, state: e.target.value })}
-        />
-        <input
-          type="text"
-          placeholder="District"
-          className="p-2 text-sm border rounded-lg outline-none focus:ring-1 focus:ring-primary"
+        >
+          <option value="">Select State</option>
+          <option value="Uttar Pradesh">Uttar Pradesh</option>
+          <option value="Madhya Pradesh">Madhya Pradesh</option>
+          <option value="Karnataka">Karnataka</option>
+          <option value="West Bengal">West Bengal</option>
+        </select>
+        <select
+          className="p-2 text-sm border rounded-lg outline-none focus:ring-1 focus:ring-primary bg-white text-gray-800"
           value={searchQuery.district}
           onChange={(e) => setSearchQuery({ ...searchQuery, district: e.target.value })}
-        />
+        >
+          <option value="">Select District</option>
+          <option value="Banda">Banda</option>
+          <option value="Chitrakoot">Chitrakoot</option>
+          <option value="Koppal">Koppal</option>
+          <option value="Purulia">Purulia</option>
+        </select>
         <input
           type="text"
           placeholder="Village"

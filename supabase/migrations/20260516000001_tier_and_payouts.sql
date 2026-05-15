@@ -22,16 +22,19 @@ CREATE TABLE IF NOT EXISTS public.payouts (
 
 ALTER TABLE public.payouts ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Farmers can view their own payouts" ON public.payouts;
 CREATE POLICY "Farmers can view their own payouts" ON public.payouts
     FOR SELECT USING (
         farmer_id IN (SELECT id FROM public.farmers WHERE user_id = auth.uid())
     );
 
+DROP POLICY IF EXISTS "Admins can manage payouts" ON public.payouts;
 CREATE POLICY "Admins can manage payouts" ON public.payouts
     FOR ALL USING (
         EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
     );
 
+DROP POLICY IF EXISTS "Ward members can view payouts in their ward" ON public.payouts;
 CREATE POLICY "Ward members can view payouts in their ward" ON public.payouts
     FOR SELECT USING (
         EXISTS (
