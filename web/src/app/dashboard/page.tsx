@@ -11,9 +11,7 @@ interface FarmerData {
   id: string;
   full_name: string | null;
   village: string | null;
-  state: string | null;
   district: string | null;
-  ward: string | null;
   total_family: number;
   female_members: number;
   unmarried_girls: number;
