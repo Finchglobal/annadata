@@ -26,7 +26,6 @@ export default function MapDraw({ onPolygonDrawn, initialSearch }: MapDrawProps)
     ward: initialSearch?.ward || "",
   });
   const [isSearching, setIsSearching] = useState(false);
-  const [potentialReward, setPotentialReward] = useState<number | null>(null);
 
   const onPolygonDrawnRef = useRef(onPolygonDrawn);
   useEffect(() => {
@@ -110,12 +109,6 @@ export default function MapDraw({ onPolygonDrawn, initialSearch }: MapDrawProps)
         
         // Pass directly without turf mutation to avoid breaking leaflet-draw
         const geojson = layer.toGeoJSON();
-
-        // Potential reward calc (Base: 10000 INR per AIC approx)
-        // Assume base multiplier of 1.0 for projection
-        const multiplier = areaHectares < 2.0 ? 1.5 : 0.8;
-        const estAic = areaHectares * multiplier; 
-        setPotentialReward(Math.round(estAic * 10000));
 
         onPolygonDrawnRef.current(areaHectares, geojson);
       }
@@ -233,15 +226,6 @@ export default function MapDraw({ onPolygonDrawn, initialSearch }: MapDrawProps)
           Use the toolbar to DRAW or EDIT points
         </div>
 
-        {/* Real-time Reward Counter */}
-        {potentialReward !== null && (
-          <div className="absolute top-4 right-4 bg-primary text-accent px-4 py-3 rounded-2xl shadow-2xl border border-white/20 z-[1000] flex flex-col items-end animate-in fade-in slide-in-from-top-4">
-            <span className="text-[10px] font-bold uppercase tracking-widest opacity-80 mb-1">Projected Reward</span>
-            <span className="text-xl font-black flex items-center gap-1">
-              ₹ {potentialReward.toLocaleString("en-IN")}
-            </span>
-          </div>
-        )}
       </div>
     </div>
   );
