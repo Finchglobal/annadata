@@ -31,9 +31,15 @@ export default function IntakePage() {
   const [user, setUser] = useState<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(async ({ data: { user } }) => {
       if (user) {
         setUser(user);
+        // Pre-fill full name if available
+        const { data: profile } = await supabase.from("profiles").select("full_name").eq("id", user.id).single();
+        const existingName = profile?.full_name || user.user_metadata?.full_name || "";
+        if (existingName) {
+          setFormData(prev => ({ ...prev, fullName: existingName }));
+        }
       } else {
         router.push("/login");
       }

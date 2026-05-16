@@ -3,7 +3,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ShieldAlert, Users, Plus, Trash2, CheckCircle, MapPin, ChevronDown, ChevronUp, Info } from "lucide-react";
+import { ShieldAlert, Users, Plus, Trash2, CheckCircle, MapPin, ChevronDown, ChevronUp, Info, Map } from "lucide-react";
+import dynamic from "next/dynamic";
+
+const MapViewer = dynamic(() => import("@/components/MapViewer"), { ssr: false });
 
 interface Profile {
   id: string;
@@ -22,6 +25,7 @@ interface Farmer {
   unmarried_girls: number;
   yearly_yield: number;
   is_verified?: boolean;
+  farms?: { geojson: object | null; area_hectares: number }[];
 }
 
 interface Assignment {
@@ -75,7 +79,7 @@ export default function AdminPortal() {
   async function fetchData() {
     const { data: p } = await supabase.from("profiles").select("*");
     const { data: a } = await supabase.from("ward_assignments").select("*");
-    const { data: f } = await supabase.from("farmers").select("*");
+    const { data: f } = await supabase.from("farmers").select("*, farms(geojson, area_hectares)");
     setProfiles(p || []);
     setAssignments(a || []);
     setFarmers(f || []);
@@ -210,6 +214,13 @@ export default function AdminPortal() {
                               <span className="text-gray-500 font-bold uppercase tracking-wider block mb-1">Family</span>
                               <span className="font-medium text-gray-800">{fData.total_family} Members ({fData.female_members} F, {fData.unmarried_girls} UG)</span>
                             </div>
+                            {fData.farms?.[0]?.geojson && (
+                              <div className="col-span-2 mt-2">
+                                <span className="text-gray-500 font-bold uppercase tracking-wider block mb-2 flex items-center gap-1"><Map size={12}/>Farm Boundary</span>
+                                <MapViewer geojson={fData.farms[0].geojson} />
+                                <span className="text-gray-400 text-[10px] mt-1 block">Area: {fData.farms[0].area_hectares} ha</span>
+                              </div>
+                            )}
                             {fData.is_verified === false && (
                               <div className="col-span-2 mt-2">
                                 <button

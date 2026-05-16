@@ -3,8 +3,11 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ShieldCheck, LogOut, CheckCircle, XCircle, Clock, User, MapPin, ArrowRight, LayoutGrid } from "lucide-react";
+import { ShieldCheck, LogOut, CheckCircle, XCircle, Clock, User, MapPin, ArrowRight, LayoutGrid, Map } from "lucide-react";
 import Logo from "@/components/Logo";
+import dynamic from "next/dynamic";
+
+const MapViewer = dynamic(() => import("@/components/MapViewer"), { ssr: false });
 
 interface PendingFarmer {
   id: string;
@@ -17,6 +20,7 @@ interface PendingFarmer {
   yearly_yield: number;
   is_verified: boolean;
   farmer_verifications: { id: string; status: string; notes: string | null }[];
+  farms?: { geojson: object | null; area_hectares: number }[];
 }
 
 interface WardAssignment {
@@ -76,7 +80,8 @@ export default function WardPortalPage() {
         id, full_name, village, district,
         total_family, female_members, unmarried_girls,
         yearly_yield, is_verified,
-        farmer_verifications (id, status, notes)
+        farmer_verifications (id, status, notes),
+        farms (geojson, area_hectares)
       `)
       .eq("district", wardNum)
       .order("created_at", { ascending: false });
@@ -294,7 +299,7 @@ export default function WardPortalPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 {[
                   { label: "Family Size", value: farmer.total_family },
                   { label: "Female Members", value: farmer.female_members },
@@ -307,6 +312,14 @@ export default function WardPortalPage() {
                   </div>
                 ))}
               </div>
+
+              {/* Farm Map */}
+              {farmer.farms?.[0]?.geojson && (
+                <div className="mb-6">
+                  <div className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-2 flex items-center gap-1"><Map size={12}/>Farm Boundary · {farmer.farms[0].area_hectares} ha</div>
+                  <MapViewer geojson={farmer.farms[0].geojson} />
+                </div>
+              )}
 
               {isPending && (
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-primary/5 p-4 rounded-3xl border border-primary/10">
