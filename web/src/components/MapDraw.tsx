@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Search, Loader2 } from "lucide-react";
 import { MOCK_LOCATIONS } from "@/lib/indiaData";
 
@@ -28,12 +28,10 @@ export default function MapDraw({ onPolygonDrawn, initialSearch }: MapDrawProps)
   const [isSearching, setIsSearching] = useState(false);
   const [potentialReward, setPotentialReward] = useState<number | null>(null);
 
-  const handlePolygonDrawn = useCallback(
-    (areaHectares: number, geojson: object) => {
-      onPolygonDrawn(areaHectares, geojson);
-    },
-    [onPolygonDrawn]
-  );
+  const onPolygonDrawnRef = useRef(onPolygonDrawn);
+  useEffect(() => {
+    onPolygonDrawnRef.current = onPolygonDrawn;
+  }, [onPolygonDrawn]);
 
   useEffect(() => {
     if (typeof window === "undefined" || !mapRef.current || mapInstanceRef.current) return;
@@ -119,7 +117,7 @@ export default function MapDraw({ onPolygonDrawn, initialSearch }: MapDrawProps)
         const estAic = areaHectares * multiplier; 
         setPotentialReward(Math.round(estAic * 10000));
 
-        handlePolygonDrawn(areaHectares, geojson);
+        onPolygonDrawnRef.current(areaHectares, geojson);
       }
 
       mapInstanceRef.current = map;
@@ -140,7 +138,7 @@ export default function MapDraw({ onPolygonDrawn, initialSearch }: MapDrawProps)
       }
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [handlePolygonDrawn]);
+  }, []);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async function performSearch(map: any, village: string, district: string, state: string) {

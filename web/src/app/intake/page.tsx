@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { ArrowRight, ArrowLeft, Map as MapIcon, Sprout, Users, MapPin } from "lucide-react";
@@ -53,9 +53,9 @@ export default function IntakePage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handlePolygonDrawn = (areaHectares: number, geojson: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
-    setFormData({ ...formData, areaHectares, geojson });
-  };
+  const handlePolygonDrawn = useCallback((areaHectares: number, geojson: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+    setFormData(prev => ({ ...prev, areaHectares, geojson }));
+  }, []);
 
   const handleSubmit = async () => {
     if (!user) return;
