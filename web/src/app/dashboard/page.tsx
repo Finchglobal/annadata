@@ -51,7 +51,7 @@ export default function DashboardPage() {
 
       const { data: farmerData } = await supabase
         .from("farmers")
-        .select("id, full_name, village, state, district, ward, total_family, female_members, unmarried_girls, yearly_yield, is_verified, is_ward_verified, current_tier, ndvi_score, w_social_score, reward_balance")
+        .select("id, full_name, village, district, total_family, female_members, unmarried_girls, yearly_yield, is_verified, is_ward_verified, current_tier, ndvi_score, w_social_score, reward_balance")
         .eq("user_id", user.id)
         .single();
 
